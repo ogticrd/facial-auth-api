@@ -351,6 +351,6 @@ $RECYCLE.BIN/
 
 # temp
 examples
-face/draw
-face/liveness
+face/liveness/blink
+test.py
 main.py

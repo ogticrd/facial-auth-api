@@ -4,6 +4,7 @@ import cv2 as cv
 
 from typing import List
 from typing import Tuple
+from typing import Optional
 
 mp_face_mesh = mp.solutions.face_mesh
 
@@ -16,7 +17,7 @@ def _get_landmarks_coord(frame: np.ndarray, results, draw: bool = False) -> List
 
     return mesh_coord
 
-def landmarks_detection(frame: np.ndarray) -> List[Tuple[int, int]]:
+def landmarks_detection(frame: np.ndarray, draw: bool = False) -> Tuple[List[Optional[Tuple[int, int]]], bool]:
     with mp_face_mesh.FaceMesh(
     max_num_faces=1,
     min_tracking_confidence=0.5,
@@ -24,4 +25,7 @@ def landmarks_detection(frame: np.ndarray) -> List[Tuple[int, int]]:
         frame = cv.cvtColor(cv.flip(frame, 1), cv.COLOR_BGR2RGB)
         frame.flags.writeable = False
         results = face_mesh.process(frame)
-        return _get_landmarks_coord(frame, results)
+        if results.multi_face_landmarks:
+            return _get_landmarks_coord(frame, results, draw=draw), True
+
+        return list(), False

@@ -13,9 +13,7 @@ def load_short_video(source: str, dims: Tuple[int, int] = (640, 480)) -> List[Op
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, dims[1])
     
     if not cap.isOpened():
-        # Improve error handle
-        print('Error loading video.')
-        return frames
+        raise IOError(f'Error reading video at {source}')
     
     while cap.isOpened():
         ret, frame = cap.read()

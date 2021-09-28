@@ -350,6 +350,5 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,pycharm,windows,linux,macos,virtualenv
 
 # temp
-examples
+examples/*.mp4
 test.py
-main.py

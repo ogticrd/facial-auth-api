@@ -2,3 +2,7 @@ mediapipe==0.8.7.3
 opencv-python==4.5.3.56
 face-recognition==1.3.0
 numpy==1.21.2
+fastapi==0.68.1
+uvicorn[standard]==0.15.0
+pydantic==1.8.2
+aiofiles==0.7.0

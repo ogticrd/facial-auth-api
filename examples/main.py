@@ -6,14 +6,14 @@ import time
 import math
 import sys
 from os.path import abspath, dirname, join
-sys.path.insert(1, abspath(join(dirname(dirname(__file__)))))
+sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
 import face
 
 WINDOW_NAME: str = 'Capture'
 WIDTH: int = 640
 HEIGHT: int = 480
-CLOSED_EYES_FRAMES: int = 2
+CLOSED_EYES_FRAMES: int = 1
 CLOSED_EYES_FRAMES_COUNTER: int = 0
 
 cap: cv.VideoCapture = cv.VideoCapture(0)

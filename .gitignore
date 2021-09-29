@@ -351,6 +351,6 @@ $RECYCLE.BIN/
 
 # temp
 examples/*.mp4
-src/api.py
+examples/api.py
 static
 test.py

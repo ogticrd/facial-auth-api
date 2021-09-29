@@ -4,8 +4,21 @@ sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi import Body
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+from pydantic import Field
+
+class FaceAuthModel(BaseModel):
+    cedula: str = Field(
+        ..., 
+        title="Document ID number", 
+        max_length=11,
+        min_length=11,
+        regex='^([0-9]+)$'
+    )
+    source: str = Field(...,  title="Source to verify")
 
 app = FastAPI(
     title='Facial Authentication API',
@@ -37,6 +50,10 @@ def root():
     </body>
     </html>
     """
+
+@app.post('/verify')
+def verify(data: FaceAuthModel = Body(..., embed=True)):
+    return { 'verified': False, 'face_verified': False, 'is_alive': False }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

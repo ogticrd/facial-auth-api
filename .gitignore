@@ -352,5 +352,5 @@ $RECYCLE.BIN/
 # temp
 examples/*.mp4
 examples/api.py
-static
+static/index.html
 test.py

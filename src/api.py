@@ -29,6 +29,10 @@ def root():
         <title>Facial Authentication API</title>
     </head>
     <body>
+        <video id="video" width="320" height="240" autoplay></video>
+        <input type="text" id="cedulaInput" name="cedula" placeholder="No. Cedula" />
+        <button id="start-record">Start Recording</button>
+        <a id="download-video" download="test.webm">Download Video</a>
         <script src="/static/index.js"></script>
     </body>
     </html>

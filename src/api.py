@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from pydantic import Field
 
 from .dependencies import base64_to_webm
+from .dependencies import load_short_video
 import face
 
 class FaceAuthModel(BaseModel):
@@ -57,7 +58,7 @@ def root():
 @app.post('/verify')
 def verify(data: FaceAuthModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
-    frames = face.load_short_video(video_path)
+    frames = load_short_video(video_path)
     print(len(frames))
     print(face.liveness.verify_liveness(frames))
     return { 'verified': False, 'face_verified': False, 'is_alive': False }

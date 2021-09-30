@@ -10,7 +10,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pydantic import Field
 
-from dependencies import base64_to_webm
+from .dependencies import base64_to_webm
+import face
 
 class FaceAuthModel(BaseModel):
     cedula: str = Field(
@@ -57,6 +58,8 @@ def root():
 def verify(data: FaceAuthModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
     frames = face.load_short_video(video_path)
+    print(len(frames))
+    print(face.liveness.verify_liveness(frames))
     return { 'verified': False, 'face_verified': False, 'is_alive': False }
 
 if __name__ == "__main__":

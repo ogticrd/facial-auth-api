@@ -60,6 +60,8 @@ start_button.addEventListener('click', function() {
     } else{
       alert('Put you cedula on the field cedula')
     }
+
+    blobs_recorded = []
   })
 
   media_recorder.start(1000)

@@ -3,7 +3,17 @@ from .blink import blink_detection
 from ..config import RIGHT_EYE
 from ..config import LEFT_EYE
 
-def verify_liveness(frames, closed_eyes_frames: int = 1):
+def _verify_blink(total_blink: int) -> float:
+    ratio: float = 0.33
+    
+    if total_blink < 3:
+        ratio *= total_blink + 1
+    elif total_blink == 3:
+        ratio *= total_blink - 1
+    
+    return ratio
+
+def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
     closed_eyes_frames_counter: int = 0
     total_blink: int = 0
     
@@ -19,4 +29,6 @@ def verify_liveness(frames, closed_eyes_frames: int = 1):
                 total_blink += 1
                 closed_eyes_frames_counter = 0
     
-    return {'total_blink': total_blink}
+    alive_ratio = _verify_blink(total_blink) 
+    
+    return alive_ratio

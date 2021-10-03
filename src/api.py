@@ -1,6 +1,7 @@
 import sys
+import os
 from os.path import abspath, dirname, join
-sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
+# sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
 import uvicorn
 from fastapi import FastAPI
@@ -10,8 +11,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pydantic import Field
 
-from .dependencies import base64_to_webm
-from .dependencies import load_short_video
+from dependencies import base64_to_webm
+from dependencies import load_short_video
 import face
 
 class FaceAuthModel(BaseModel):
@@ -64,4 +65,6 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     return { 'verified': False, 'face_verified': False, 'is_alive': False }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port: int = int(os.environ.get('PORT', 8080))
+    host: str = os.environ.get('HOST', "localhost")
+    uvicorn.run(app, host=host, port=port)

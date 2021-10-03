@@ -1,0 +1,7 @@
+.env
+.vscode
+examples
+.gitignore
+LICENCE
+README.mkdocs
+test.py

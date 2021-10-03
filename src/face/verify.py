@@ -1,5 +1,5 @@
 from numpy.core.numeric import Inf
-import face_recognition
+# import face_recognition
 import numpy as np
 import cv2 as cv
 

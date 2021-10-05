@@ -1,7 +1,7 @@
 import sys
 import os
 from os.path import abspath, dirname, join
-# sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
+sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
 import uvicorn
 from fastapi import FastAPI
@@ -60,9 +60,11 @@ def root():
 def verify(data: FaceAuthModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
     frames = load_short_video(video_path)
-    print(len(frames))
-    print(face.liveness.verify_liveness(frames))
-    return { 'verified': False, 'face_verified': False, 'is_alive': False }
+    results = face.liveness.verify_liveness(frames)
+    print(f'No. Frames: {len(frames)}')
+    print(results)
+    return results
+    # return { 'verified': False, 'face_verified': False, 'is_alive': False }
 
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))

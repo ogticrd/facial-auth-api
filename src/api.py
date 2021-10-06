@@ -44,14 +44,15 @@ def root():
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/index.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
+        <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js" type="text/javascript"></script>
         <title>Facial Authentication API</title>
     </head>
     <body>
-        <video id="video" width="320" height="240" autoplay></video>
-        <input type="text" id="cedulaInput" name="cedula" placeholder="No. Cedula" />
-        <button id="start-record">Start Recording</button>
-        <a id="download-video" download="test.webm">Download Video</a>
-        <script src="/static/index.js"></script>
+        <h1>Face Recognition OGTIC Example</h1>
+        <script src="/static/sketch.js"></script>
     </body>
     </html>
     """

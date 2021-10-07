@@ -39,10 +39,16 @@ def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
                 closed_eyes_frames_counter = 0
     
     blur_average = sum(blur_per_frames)/len(blur_per_frames)
-    blink_ratio = _verify_blink(total_blink)
     
-    alive_ratio: float = blink_ratio
-    if blur_average <= 100.0:
-        alive_ratio += blur_average
+    if (total_blink > 5) or (blur_average < 50.0) or (blur_average > 500.0):
+        alive_ratio = 0.0
+    else:
+        blink_ratio = _verify_blink(total_blink)
+        
+        alive_ratio: float = blink_ratio
+        if blur_average <= 250.0:
+            alive_ratio += 0.51
+        # elif blur_average <= 250.0:
+        #     alive_ratio += 0.16
     
     return {'alive_ratio': alive_ratio, 'total_blink': total_blink, 'blur_average': blur_average}

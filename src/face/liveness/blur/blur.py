@@ -31,7 +31,7 @@ def _normalized_to_pixel_coordinates(
 def blur_detection(frame: np.ndarray, model_selection: int = 0, min_detection_confidence: float = 0.5) -> float:
     with mp_face_detection.FaceDetection(
     model_selection=model_selection, min_detection_confidence=min_detection_confidence) as face_detection:
-        frame = cv.cvtColor(cv.flip(frame, 1), cv.COLOR_BGR2RGB)
+        frame = cv.flip(frame, 1)
 
         frame.flags.writeable = False
         results = face_detection.process(frame)
@@ -62,6 +62,7 @@ def blur_detection(frame: np.ndarray, model_selection: int = 0, min_detection_co
         frame = frame[ymin:ymax, xmin:xmax]
         
         try:
+            frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
             fm = cv.Laplacian(frame, cv.CV_64F).var()
         except:
             fm = 200.0

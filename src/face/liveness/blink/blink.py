@@ -9,7 +9,7 @@ def euclaidean_distance(point: Tuple[int, int], point1: Tuple[int, int]) -> floa
     x1, y1 = point1
     return math.sqrt((x1 - x)**2 + (y1 - y)**2)
 
-def blink_detection(img: np.ndarray, landmarks: List[Tuple[int, int]], right_indices: List[int], left_indices: List[int], tolerance: float):
+def blink_detection(img: np.ndarray, landmarks: List[Tuple[int, int]], right_indices: List[int], left_indices: List[int]):
     # Horizontal line
     re_h_right: Tuple[int, int] = landmarks[right_indices[0]]
     re_h_left: Tuple[int, int] = landmarks[right_indices[8]]

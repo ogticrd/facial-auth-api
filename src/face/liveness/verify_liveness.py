@@ -42,8 +42,8 @@ def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
         mesh_coords, check = landmarks_detection(frame)
         
         if check:
-            ratio = blink_detection(frame, mesh_coords, RIGHT_EYE, LEFT_EYE, tolerance=0.5)
-            if ratio > 4.5:
+            ratio = blink_detection(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
+            if ratio > 4.0:
                 closed_eyes_frames_counter += 1
             elif closed_eyes_frames_counter > closed_eyes_frames:
                 total_blink += 1
@@ -52,16 +52,17 @@ def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
     blur_average = sum(blur_per_frames)/len(blur_per_frames)
     lbp_average = sum(lbp_per_frames)/len(lbp_per_frames)
     
-    if (total_blink > 5) or (blur_average > 500.0):
-        alive_ratio = 0.0
-    else:
-        blink_ratio = _verify_blink(total_blink)
-        
-        alive_ratio: float = blink_ratio
-        if blur_average <= 150.0:
-            alive_ratio += 0.35
-        
-        if lbp_average > 0.050:
-            alive_ratio += 0.35
+    # if (total_blink > 5) or (blur_average > 500.0):
+    #     alive_ratio = 0.0
+    # else:
+    #     blink_ratio = _verify_blink(total_blink)
+    blink_ratio = 0.0 if total_blink > 4 else _verify_blink(total_blink)
     
+    alive_ratio: float = blink_ratio
+    if blur_average <= 250.0:
+        alive_ratio += 0.30
+    
+    if lbp_average > 0.050:
+        alive_ratio += 0.50
+
     return {'alive_ratio': alive_ratio, 'total_blink': total_blink, 'blur_average': blur_average, 'lbp_average': lbp_average}

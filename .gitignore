@@ -354,3 +354,4 @@ examples/*.mp4
 examples/api.py
 static/index.html
 test.py
+tests

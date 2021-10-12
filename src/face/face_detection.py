@@ -28,7 +28,7 @@ def _normalized_to_pixel_coordinates(
     y_px = min(math.floor(normalized_y * image_height), image_height - 1)
     return x_px, y_px
 
-def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detection_confidence: float = 0.5, cmap='default') -> Tuple[np.ndarray, np.ndarray]:
+def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detection_confidence: float = 0.5) -> Tuple[np.ndarray, np.ndarray]:
     with mp_face_detection.FaceDetection(
     model_selection=model_selection, min_detection_confidence=min_detection_confidence) as face_detection:
         frame = cv.cvtColor(cv.flip(frame, 1), cv.COLOR_BGR2RGB)

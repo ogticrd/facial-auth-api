@@ -6,7 +6,7 @@ class LocalBinaryPatterns:
         self.numPoints = numPoints
         self.radius = radius
     
-    def _describe(self, image, eps=1e-7):
+    def _describe(self, image, eps=1e-7) -> np.ndarray:
         lbp = feature.local_binary_pattern(image, self.numPoints,
                 self.radius, method="uniform")
         (hist, _) = np.histogram(lbp.ravel(),
@@ -18,6 +18,6 @@ class LocalBinaryPatterns:
 
         return hist
 
-    def get_lbp_max(self, image: np.ndarray, start: int=8, end: int=18, eps: float=1e-7):
+    def get_lbp_max(self, image: np.ndarray, start: int=8, end: int=18, eps: float=1e-7) -> float:
         hist = self._describe(image, eps)
         return max(hist[start:end])

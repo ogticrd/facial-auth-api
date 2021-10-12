@@ -31,19 +31,19 @@ def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
     for frame in frames:
         ratio: int = 0
         
-        face = get_face_from_frame(frame, cmap='gray')
+        color_face, gray_face = get_face_from_frame(frame, cmap='gray')
         
-        fm = blur_detection(face)
+        fm = blur_detection(color_face)
         blur_per_frames.append(fm)
         
-        lbp_value = desc.get_lbp_max(face)
+        lbp_value = desc.get_lbp_max(gray_face)
         lbp_per_frames.append(lbp_value)
         
         mesh_coords, check = landmarks_detection(frame)
         
         if check:
-            ratio = blink_detection(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
-            if ratio > 4.0:
+            ratio = blink_detection(mesh_coords, RIGHT_EYE, LEFT_EYE)
+            if ratio > 5.3:
                 closed_eyes_frames_counter += 1
             elif closed_eyes_frames_counter > closed_eyes_frames:
                 total_blink += 1
@@ -52,17 +52,16 @@ def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
     blur_average = sum(blur_per_frames)/len(blur_per_frames)
     lbp_average = sum(lbp_per_frames)/len(lbp_per_frames)
     
-    # if (total_blink > 5) or (blur_average > 500.0):
-    #     alive_ratio = 0.0
-    # else:
-    #     blink_ratio = _verify_blink(total_blink)
-    blink_ratio = 0.0 if total_blink > 4 else _verify_blink(total_blink)
-    
-    alive_ratio: float = blink_ratio
-    if blur_average <= 250.0:
-        alive_ratio += 0.30
-    
-    if lbp_average > 0.050:
-        alive_ratio += 0.50
+    if total_blink > 5:
+        alive_ratio = 0.0
+    else:
+        blink_ratio = _verify_blink(total_blink)
+        
+        alive_ratio: float = blink_ratio
+        if blur_average <= 150.0:
+            alive_ratio += 0.35
+        
+        if lbp_average > 0.050:
+            alive_ratio += 0.35
 
     return {'alive_ratio': alive_ratio, 'total_blink': total_blink, 'blur_average': blur_average, 'lbp_average': lbp_average}

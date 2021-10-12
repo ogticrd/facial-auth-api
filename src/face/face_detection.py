@@ -28,17 +28,18 @@ def _normalized_to_pixel_coordinates(
     y_px = min(math.floor(normalized_y * image_height), image_height - 1)
     return x_px, y_px
 
-def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detection_confidence: float = 0.5, cmap='default') -> np.ndarray:
+def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detection_confidence: float = 0.5, cmap='default') -> Tuple[np.ndarray, np.ndarray]:
     with mp_face_detection.FaceDetection(
     model_selection=model_selection, min_detection_confidence=min_detection_confidence) as face_detection:
-        frame = cv.flip(frame, 1)
+        frame = cv.cvtColor(cv.flip(frame, 1), cv.COLOR_BGR2RGB)
         frame.flags.writeable = False
         
         results = face_detection.process(frame)
-
-        frame = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
         
         face_locations: List[Tuple[int, int, int, int]] = [] 
+        
+        frame.flags.writeable = True
+        frame = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
         
         if results.detections:
             for detection in results.detections:
@@ -58,12 +59,7 @@ def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detecti
                     face_locations.append((cords_1[0], cords_1[1], cords_2[0], cords_2[1]))
         
         xmin, ymin, xmax, ymax = max(face_locations, default=(0, 0, 0, 0), key=lambda x: (x[2]-x[0]) * (x[3]-x[1]))
-        frame = frame[ymin:ymax, xmin:xmax]
+        color_face = frame[ymin:ymax, xmin:xmax]
+        gray_face = cv.cvtColor(color_face, cv.COLOR_BGR2GRAY)
         
-        if cmap == 'gray':
-            try:
-                return cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-            except:
-                pass
-        
-        return frame
+        return color_face, gray_face

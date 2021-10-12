@@ -47,7 +47,7 @@ while cap.isOpened():
     if verified:  
         mesh_coords, ret = face.liveness.landmarks.landmarks_detection(show_frame, False)
         if ret:
-            ratio = face.liveness.blink.blink_detection(show_frame, mesh_coords, face.config.RIGHT_EYE, face.config.LEFT_EYE, tolerance=0.5)
+            ratio = face.liveness.blink.blink_detection(mesh_coords, face.config.RIGHT_EYE, face.config.LEFT_EYE)
             if ratio > 4.5:
                 CLOSED_EYES_FRAMES_COUNTER += 1
                 blinked = True

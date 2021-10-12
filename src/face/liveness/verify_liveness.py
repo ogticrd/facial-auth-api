@@ -31,7 +31,7 @@ def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
     for frame in frames:
         ratio: int = 0
         
-        color_face, gray_face = get_face_from_frame(frame, cmap='gray')
+        color_face, gray_face = get_face_from_frame(frame)
         
         fm = blur_detection(color_face)
         blur_per_frames.append(fm)

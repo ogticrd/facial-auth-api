@@ -4,6 +4,7 @@ import tempfile
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 import requests
 import random
 
@@ -38,15 +39,17 @@ def load_short_video(source: str, dims: Tuple[int, int] = (640, 480)) -> List[Op
     
     return frames
 
-def get_target_image(cedula: str) -> str:
+def get_target_image(cedula: str) -> Union[str, int]:
     url = f'https://api.digital.gob.do/master/citizens/{cedula}/photo?api-key={os.environ.get("CEDULA_API_KEY")}'
     
-    resutls = requests.get(url)
+    results = requests.get(url)
+    
+    results.raise_for_status()
     
     target_image_path = tempfile.mkstemp()[1] + '.jpg'
     
     f = open(target_image_path, 'wb')
-    f.write(resutls.content)
+    f.write(results.content)
     f.close()
     
     return target_image_path

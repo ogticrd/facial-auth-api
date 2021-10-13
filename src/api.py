@@ -6,13 +6,17 @@ sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 import uvicorn
 from fastapi import FastAPI
 from fastapi import Body
+from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pydantic import Field
+import requests
 
 from dependencies import base64_to_webm
 from dependencies import load_short_video
+from dependencies import get_target_image
+from dependencies import save_source_image
 import face
 
 class FaceAuthModel(BaseModel):
@@ -60,7 +64,18 @@ def root():
 @app.post('/verify')
 def verify(data: FaceAuthModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
+    
+    try:
+        target_path = get_target_image(data.cedula)
+    except requests.HTTPError:
+        raise HTTPException(status_code=400, detail='Error trying to get cedula photo.')
+    
     frames = load_short_video(video_path)
+    source_path = save_source_image(frames)
+    
+    print('Target path: ', target_path)
+    print('Source path: ', source_path)
+    
     results = face.liveness.verify_liveness(frames)
     print(f'No. Frames: {len(frames)}')
     print(results)

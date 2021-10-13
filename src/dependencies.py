@@ -1,8 +1,10 @@
+import os
 import base64
 import tempfile
 from typing import List
 from typing import Optional
 from typing import Tuple
+import requests
 
 import numpy as np
 import cv2 as cv
@@ -34,3 +36,16 @@ def load_short_video(source: str, dims: Tuple[int, int] = (640, 480)) -> List[Op
         frames.append(frame)
     
     return frames
+
+def get_target_image(cedula: str) -> str:
+    url = f'https://api.digital.gob.do/master/citizens/{cedula}/photo?api-key={os.environ.get("CEDULA_API_KEY")}'
+    
+    resutls = requests.get(url)
+    
+    target_image = tempfile.mkstemp()[1] + '.jpg'
+    
+    f = open(target_image, 'wb')
+    f.write(resutls.content)
+    f.close()
+    
+    return target_image

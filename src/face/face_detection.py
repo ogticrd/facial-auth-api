@@ -60,6 +60,8 @@ def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detecti
         
         xmin, ymin, xmax, ymax = max(face_locations, default=(0, 0, 0, 0), key=lambda x: (x[2]-x[0]) * (x[3]-x[1]))
         color_face = frame[ymin:ymax, xmin:xmax]
-        gray_face = cv.cvtColor(color_face, cv.COLOR_BGR2GRAY)
+        
+        gray_face = color_face if 0 in color_face.shape else cv.cvtColor(color_face, cv.COLOR_BGR2GRAY)
+        
         
         return color_face, gray_face

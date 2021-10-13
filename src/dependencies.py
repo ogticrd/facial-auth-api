@@ -5,6 +5,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 import requests
+import random
 
 import numpy as np
 import cv2 as cv
@@ -42,10 +43,20 @@ def get_target_image(cedula: str) -> str:
     
     resutls = requests.get(url)
     
-    target_image = tempfile.mkstemp()[1] + '.jpg'
+    target_image_path = tempfile.mkstemp()[1] + '.jpg'
     
-    f = open(target_image, 'wb')
+    f = open(target_image_path, 'wb')
     f.write(resutls.content)
     f.close()
     
-    return target_image
+    return target_image_path
+
+def save_source_image(frames: List[np.ndarray]) ->  str:
+    # get random frame from video
+    frame = frames[random.randint(0, len(frames) - 1)]
+    
+    source_image_path = tempfile.mkstemp()[1] + '.jpg'
+    
+    cv.imwrite(source_image_path, frame)
+    
+    return source_image_path

@@ -24,16 +24,16 @@ class TestFace(unittest.TestCase):
     
     def test_get_face_from_frame(self):
         results = face.get_face_from_frame(frame=self.frame, model_selection=0, min_detection_confidence=0.5)
-        self.assertEqual(type(results), tuple)
-        self.assertEqual(type(results[0]), np.ndarray)
-        self.assertEqual(type(results[1]), np.ndarray)
+        self.assertIsInstance(results, tuple)
+        self.assertIsInstance(results[0], np.ndarray)
+        self.assertIsInstance(results[1], np.ndarray)
     
     def test_verify(self):
         results = face.verify(self.target_path, self.source_path)
-        self.assertEqual(type(results), dict)
-        self.assertEqual(type(results['isIdentical']), bool)
-        self.assertEqual(type(results['confidence']), float)
-        self.assertTrue(type(results['isIdentical']))
+        self.assertIsInstance(results, dict)
+        self.assertIsInstance(results['isIdentical'], bool)
+        self.assertIsInstance(results['confidence'], float)
+        self.assertTrue(results['isIdentical'])
     
     def test_normalized_to_pixel_coordinates(self):
         results = face.face_detection._normalized_to_pixel_coordinates(self.x_pixel, 

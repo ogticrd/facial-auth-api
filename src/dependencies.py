@@ -13,7 +13,7 @@ import cv2 as cv
 
 def base64_to_webm(source: str) -> str:
     file_name: str = tempfile.mkstemp()[1] + '.webm'
-    print(file_name)
+    
     with open(file_name, 'wb') as video:
         video.write(base64.b64decode(source))
     

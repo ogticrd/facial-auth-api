@@ -21,7 +21,7 @@ def verify(target_path: str, source_path: str) -> Dict[str, Union[bool, float]]:
         face_ids.append(face_client.face.detect_with_stream(image, detection_model='detection_03')[0].face_id)
 
     headers: Dict[str, str] = {
-        'Ocp-Apim-Subscription-Key': '96895d4d6f114d3b873305992b2b8167',
+        'Ocp-Apim-Subscription-Key': os.environ.get('FACE_API_KEY'),
         'Content-Type': 'application/json'
     }
 

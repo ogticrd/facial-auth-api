@@ -66,4 +66,4 @@ def verify_liveness(frames, closed_eyes_frames: int = 1) -> float:
         
         alive_ratio += lbp_average * 10
 
-    return {'alive_ratio': alive_ratio, 'total_blink': total_blink, 'blur_average': blur_average, 'lbp_average': lbp_average}
+    return {'is_alive': True if alive_ratio > 0.5 else False, 'alive_ratio': alive_ratio, 'total_blink': total_blink, 'blur_average': blur_average, 'lbp_average': lbp_average}

@@ -1,22 +1,35 @@
-from numpy.core.numeric import Inf
-# import face_recognition
-import numpy as np
-import cv2 as cv
-
+import os
+import time
+from typing import Dict
 from typing import Union
-from typing import Tuple
+import requests
 
-def verify(unknown: Union[np.ndarray, str], target: Union[np.ndarray, str], max_num_faces=1, tolerance: float = 0.4) -> bool:
-    unknown = cv.resize(unknown, (0, 0), fx=0.25, fy=0.25)
-    
-    target_image: np.ndarray = face_recognition.load_image_file(target)
-    target_face_encoding = face_recognition.face_encodings(target_image)[0]
-    
-    face_locations: Tuple[int, int, int, int] = face_recognition.face_locations(unknown)
+from azure.cognitiveservices.vision.face import FaceClient
+from msrest.authentication import CognitiveServicesCredentials
 
-    if (max_num_faces != Inf) and ((len(face_locations) > max_num_faces) or (len(face_locations) == 0)):
-        return False
+def verify(target_path: str, source_path: str) -> Dict[str, Union[bool, float]]:
+    face_client = FaceClient(os.environ.get('FACE_API_ENDPOINT'), CognitiveServicesCredentials(os.environ.get('FACE_API_KEY')))
+
+    test_image_array = [target_path, source_path]
+    face_ids = []
+    for image in test_image_array:
+        image = open(image, 'r+b')
+
+        print('Pausing for 60 seconds to avoid triggering rate limit on free account...')
+        time.sleep(60)
+
+        face_ids.append(face_client.face.detect_with_stream(image, detection_model='detection_03')[0].face_id)
+
+    headers: Dict[str, str] = {
+        'Ocp-Apim-Subscription-Key': '96895d4d6f114d3b873305992b2b8167',
+        'Content-Type': 'application/json'
+    }
+
+    data: Dict[str, str] = {
+        "faceId1": face_ids[0],
+        "faceId2": face_ids[1]
+    }
+
+    results = requests.post(f'{os.environ.get("FACE_API_ENDPOINT")}/face/v1.0/verify', headers=headers, json=data)
     
-    face_encodings = face_recognition.face_encodings(unknown, face_locations)[0]
-    
-    return face_recognition.compare_faces([target_face_encoding], face_encodings, tolerance=tolerance)[0]
+    return results.json()

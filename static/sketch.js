@@ -92,7 +92,7 @@ function setup() {
             predictions = [];
           })
           cedulaValue = ''
-          if (result.alive_ratio >= 0.60){
+          if (result.verified){
             console.log('Working')
             p.html('4. Verified Successfully!')
           }else {

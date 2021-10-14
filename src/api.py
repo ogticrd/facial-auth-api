@@ -75,12 +75,16 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     
     print('Target path: ', target_path)
     print('Source path: ', source_path)
+    results_recog = face.verify(target_path, source_path)
     
-    results = face.liveness.verify_liveness(frames)
+    results_live = face.liveness.verify_liveness(frames)
     print(f'No. Frames: {len(frames)}')
-    print(results)
-    return results
-    # return { 'verified': False, 'face_verified': False, 'is_alive': False }
+    print(results_recog)
+    print(results_live)
+    return { 
+            'verified': True if results_recog['isIdentical'] and results_live['is_alive'] else False, 
+            'face_verified': results_recog["isIdentical"], 
+            'is_alive': results_live["is_alive"]}
 
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))

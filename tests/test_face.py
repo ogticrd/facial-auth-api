@@ -2,6 +2,7 @@ import sys
 from os.path import abspath, dirname, join
 sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
+import random
 import unittest
 
 import numpy as np
@@ -14,6 +15,8 @@ class TestFace(unittest.TestCase):
         
         self.frame = np.random.random((self.dims[0], self.dims[1], 3)) * 255
         self.frame = self.frame.astype('uint8')
+        self.x_pixel = random.random()
+        self.y_pixel = random.random()
         
         # image should belong to the same person
         self.target_path = './examples/target.jpg'
@@ -31,3 +34,17 @@ class TestFace(unittest.TestCase):
         self.assertEqual(type(results['isIdentical']), bool)
         self.assertEqual(type(results['confidence']), float)
         self.assertTrue(type(results['isIdentical']))
+    
+    def test_normalized_to_pixel_coordinates(self):
+        results = face.face_detection._normalized_to_pixel_coordinates(self.x_pixel, 
+                                                                        self.y_pixel, 
+                                                                        self.dims[0], 
+                                                                        self.dims[1])
+        self.assertIsInstance(results, tuple)
+        self.assertIsInstance(results[0], int)
+        self.assertIsInstance(results[1], int)
+        
+        self.assertGreaterEqual(results[0], 0)
+        self.assertGreaterEqual(results[1], 0)
+        self.assertLessEqual(results[0], self.dims[0])
+        self.assertLessEqual(results[1], self.dims[1])

@@ -9,7 +9,7 @@ import numpy as np
 import face
 
 class TestFace(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.dims = (640, 480)
         
         self.frame = np.random.random((self.dims[0], self.dims[1], 3)) * 255

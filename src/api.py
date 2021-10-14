@@ -81,8 +81,7 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     print(f'No. Frames: {len(frames)}')
     print(results_recog)
     print(results_live)
-    return { 
-            'verified': True if results_recog['isIdentical'] and results_live['is_alive'] else False, 
+    return {'verified': True if results_recog['isIdentical'] and results_live['is_alive'] else False, 
             'face_verified': results_recog["isIdentical"], 
             'is_alive': results_live["is_alive"]}
 

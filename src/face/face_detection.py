@@ -63,5 +63,4 @@ def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detecti
         
         gray_face = color_face if 0 in color_face.shape else cv.cvtColor(color_face, cv.COLOR_BGR2GRAY)
         
-        
         return color_face, gray_face

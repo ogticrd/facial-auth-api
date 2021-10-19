@@ -17,6 +17,7 @@ from dependencies import base64_to_webm
 from dependencies import load_short_video
 from dependencies import get_target_image
 from dependencies import save_source_image
+from dependencies import get_hand_action
 import face
 
 class FaceAuthModel(BaseModel):
@@ -61,6 +62,10 @@ def root():
     </html>
     """
 
+@app.get('/challenge')
+def challenge():
+    return get_hand_action()
+
 @app.post('/verify')
 def verify(data: FaceAuthModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
@@ -75,9 +80,13 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     
     print('Target path: ', target_path)
     print('Source path: ', source_path)
-    results_recog = face.verify(target_path, source_path)
+    try:
+        results_recog = face.verify(target_path, source_path)
+    except IndexError:
+        raise HTTPException(status_code=400, detail='Not face detected.')
     
-    results_live = face.liveness.verify_liveness(frames)
+    hand_sign_action = get_hand_action()
+    results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
     print(f'No. Frames: {len(frames)}')
     print(results_recog)
     print(results_live)

@@ -11,6 +11,9 @@ import random
 import numpy as np
 import cv2 as cv
 
+from config import HANDS_ACTIONS
+from face.liveness.hand import HandSign
+
 def base64_to_webm(source: str) -> str:
     file_name: str = tempfile.mkstemp()[1] + '.webm'
     
@@ -63,3 +66,7 @@ def save_source_image(frames: List[np.ndarray]) ->  str:
     cv.imwrite(source_image_path, frame)
     
     return source_image_path
+
+def get_hand_action() -> Tuple[HandSign, int]:
+    rand_action = random.randint(0, len(HANDS_ACTIONS) - 1)
+    return HANDS_ACTIONS[rand_action]

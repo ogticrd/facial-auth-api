@@ -1,5 +1,4 @@
 from enum import Enum
-from src.face.liveness import hand
 import cv2 as cv
 import mediapipe as mp
 import numpy as np

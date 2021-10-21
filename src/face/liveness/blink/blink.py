@@ -1,8 +1,6 @@
 from typing import List
 from typing import Tuple
-import math
 
-import numpy as np
 from scipy.spatial import distance
 
 def blink_detection(landmarks: List[Tuple[int, int]], right_indices: List[int], left_indices: List[int]):

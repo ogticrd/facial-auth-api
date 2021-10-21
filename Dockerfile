@@ -2,6 +2,9 @@ FROM python:3.9
 
 ENV PORT=80
 ENV HOST="0.0.0.0"
+ENV REDIS_HOST='redis'
+ENV REDIS_PORT=6379
+
 WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt

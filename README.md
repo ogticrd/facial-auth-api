@@ -17,18 +17,36 @@ Also you can open a web demo going to  `https://{ENDPOINT}/`:
 
 ## Install
 
-To install it using docker:
+environment variables
+
+```shell
+# Optional env
+PORT=80
+HOST="0.0.0.0"
+REDIS_HOST='localhost'
+REDIS_PORT=6379
+
+# Require
+CEDULA_API_KEY=...
+FACE_API_KEY=...
+FACE_API_ENDPOINT=...
+```
+
+To install it using docker with docker-compose:
 
 ```shell
 git clone git@github.com:opticrd/facial-auth-api.git
 cd facial-auth-api
-docker build -t facial=auth-api .
-docker run -p 8000:80 -it facial-auth-api
+docker-compose up
 ```
 
 To install it manually (python 3.6+ and pip should be installed):
 
 ```shell
+# Deploy redis for json support
+ docker run -p 6379:6379 --name redis-redisjson redislabs/rejson:latest
+
+#
 git clone git@github.com:opticrd/facial-auth-api.git
 cd facial-auth-api
 pip install -r requirements.txt

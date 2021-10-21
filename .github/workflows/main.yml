@@ -40,8 +40,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       env:
-        CEDULA_API_KEY: ${{ CEDULA_API_KEY }}
-        FACE_API_KEY: ${{ FACE_API_KEY }}
-        FACE_API_ENDPOINT: ${{ FACE_API_ENDPOINT }}
+        CEDULA_API_KEY: ${{ secrets.CEDULA_API_KEY }}
+        FACE_API_KEY: ${{ secrets.FACE_API_KEY }}
+        FACE_API_ENDPOINT: ${{ secrets.FACE_API_ENDPOINT }}
       run: |
         python -m unittest discover -s ./tests/

@@ -39,5 +39,9 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      env:
+        CEDULA_API_KEY: ${{ CEDULA_API_KEY }}
+        FACE_API_KEY: ${{ FACE_API_KEY }}
+        FACE_API_ENDPOINT: ${{ FACE_API_ENDPOINT }}
       run: |
         python -m unittest discover -s ./tests/

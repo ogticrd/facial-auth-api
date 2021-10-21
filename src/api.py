@@ -1,6 +1,9 @@
 import sys
 import os
+import uuid
 from os.path import abspath, dirname, join
+from typing import TypedDict
+from typing import Union
 sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
 import uvicorn
@@ -12,6 +15,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pydantic import Field
 import requests
+from rejson import Client
+from rejson import Path
 
 from dependencies import base64_to_webm
 from dependencies import load_short_video
@@ -19,6 +24,12 @@ from dependencies import get_target_image
 from dependencies import save_source_image
 from dependencies import get_hand_action
 import face
+
+rj = Client(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379), decode_responses=True)
+
+class ChallengeResponse(TypedDict):
+    id: Union[str, uuid.UUID]
+    sign: face.liveness.hand.HandSign
 
 class FaceAuthModel(BaseModel):
     cedula: str = Field(
@@ -29,6 +40,7 @@ class FaceAuthModel(BaseModel):
         regex='^([0-9]+)$'
     )
     source: str = Field(...,  title="Source to verify")
+    id: Union[str, uuid.UUID]
 
 app = FastAPI(
     title='Facial Authentication API',
@@ -64,7 +76,10 @@ def root():
 
 @app.get('/challenge')
 def challenge():
-    return get_hand_action()
+    id = uuid.uuid4()
+    sign = get_hand_action()
+    rj.jsonset(str(id), Path.rootPath(), sign)
+    return ChallengeResponse(id=id, sign=sign)
 
 @app.post('/verify')
 def verify(data: FaceAuthModel = Body(..., embed=True)):
@@ -78,18 +93,20 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     frames = load_short_video(video_path)
     source_path = save_source_image(frames)
     
-    print('Target path: ', target_path)
-    print('Source path: ', source_path)
     try:
         results_recog = face.verify(target_path, source_path)
     except IndexError:
         raise HTTPException(status_code=400, detail='Not face detected.')
     
-    hand_sign_action = get_hand_action()
+    expected_sign  = rj.jsonget(data.id, Path.rootPath())
+    if expected_sign:
+        hand_sign_action = face.liveness.hand.HandSign(expected_sign)
+        rj.jsondel(data.id, Path.rootPath())
+    else:
+        raise HTTPException(status_code=400, detail='Bad sign id.')
+    
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
-    print(f'No. Frames: {len(frames)}')
-    print(results_recog)
-    print(results_live)
+    
     return {'verified': True if results_recog['isIdentical'] and results_live['is_alive'] else False, 
             'face_verified': results_recog["isIdentical"], 
             'is_alive': results_live["is_alive"]}

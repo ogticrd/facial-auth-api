@@ -5,6 +5,7 @@ let capture = null
 let predictions = []
 let recorder = null
 let p = null
+let challenge = null
 
 function videoLoad() {
   video.loop();
@@ -27,16 +28,15 @@ function toggleRecording(){
   }
 }
 
-function draw() {
+// function draw() {
 
-}
+// }
 
-function setup() {
+async function setup() {
   createCanvas(640, 480)
   p = createP('1. Enter cedula number in the box below.')
   let cedulaInput = createInput()
   let button = createButton("Sign in")
-
   // handles
   button.mousePressed(toggleRecording)
   cedulaInput.input(updateCedulaValue)
@@ -74,7 +74,8 @@ function setup() {
           const data = {
             data: {
               cedula: cedulaValue,
-              source: base64String
+              source: base64String,
+              id: challenge.id
             }
           }
           const options = {
@@ -107,6 +108,15 @@ function setup() {
   });
   capture.hide()
   facemesh = ml5.facemesh(capture, modelReady)
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+  const res = await fetch('/challenge', options)
+  challenge = await res.json()
+  console.log(challenge)
 }
 
 function modelReady() {

@@ -14,10 +14,6 @@ def verify(target_path: str, source_path: str) -> Dict[str, Union[bool, float]]:
     face_ids = []
     for image in test_image_array:
         image = open(image, 'r+b')
-
-        # print('Pausing for 60 seconds to avoid triggering rate limit on free account...')
-        # time.sleep(60)
-
         face_ids.append(face_client.face.detect_with_stream(image, detection_model='detection_03')[0].face_id)
 
     headers: Dict[str, str] = {

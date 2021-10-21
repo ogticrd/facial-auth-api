@@ -9,9 +9,20 @@ let media_recorder = null
 let blobs_recorded = []
 let cedulaValue = ''
 
+let challenge = null
+
 window.addEventListener('load', async function() {
   camera_stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
 	video.srcObject = camera_stream
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+  const res = await fetch('/challenge', options)
+  challenge = await res.json()
+  console.log(challenge)
 })
 
 cedulaInput.addEventListener('input', updateCedulaValue)
@@ -43,7 +54,8 @@ start_button.addEventListener('click', function() {
         const data = {
           data: {
             cedula: cedulaValue,
-            source: base64String
+            source: base64String,
+            id: challenge.id
           }
         }
         const options = {

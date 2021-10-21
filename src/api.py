@@ -2,6 +2,12 @@ import sys
 import os
 import uuid
 from os.path import abspath, dirname, join
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
 from typing import TypedDict
 from typing import Union
 sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))

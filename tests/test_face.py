@@ -28,13 +28,6 @@ class TestFace(unittest.TestCase):
         self.assertIsInstance(results[0], np.ndarray)
         self.assertIsInstance(results[1], np.ndarray)
     
-    def test_verify(self):
-        results = face.verify(self.target_path, self.source_path)
-        self.assertIsInstance(results, dict)
-        self.assertIsInstance(results['isIdentical'], bool)
-        self.assertIsInstance(results['confidence'], float)
-        self.assertTrue(results['isIdentical'])
-    
     def test_normalized_to_pixel_coordinates(self):
         results = face.face_detection._normalized_to_pixel_coordinates(self.x_pixel, 
                                                                         self.y_pixel, 

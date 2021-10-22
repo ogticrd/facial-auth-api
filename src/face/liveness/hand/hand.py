@@ -1,9 +1,15 @@
+import sys
 from enum import Enum
+
 import cv2 as cv
 import mediapipe as mp
 import numpy as np
 from deepdiff import DeepDiff
-from typing import TypedDict
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles

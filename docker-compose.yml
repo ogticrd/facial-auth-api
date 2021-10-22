@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    ports:
+      - "8080:80"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+    links:
+      - redis
+  redis:
+    image: redislabs/rejson:2.0.0

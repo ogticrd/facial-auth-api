@@ -8,7 +8,6 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import TypedDict
 
-from typing import TypedDict
 from typing import Union
 sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 

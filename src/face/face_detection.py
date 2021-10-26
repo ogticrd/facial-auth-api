@@ -1,6 +1,7 @@
 from typing import Union
 from typing import Tuple
 from typing import List
+from typing import Optional
 import math
 
 import mediapipe as mp
@@ -12,7 +13,7 @@ mp_drawing = mp.solutions.drawing_utils
 
 def _normalized_to_pixel_coordinates(
         normalized_x: float, normalized_y: float, image_width: int,
-        image_height: int) -> Union[None, Tuple[int, int]]:
+        image_height: int) -> Optional[Tuple[int, int]]:
     """Converts normalized value pair to pixel coordinates."""
 
     # Checks if the float value is between 0 and 1.
@@ -36,7 +37,7 @@ def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detecti
         
         results = face_detection.process(frame)
         
-        face_locations: List[Tuple[int, int, int, int]] = [] 
+        face_locations: List[Tuple[int, int, int, int]] = []
         
         frame.flags.writeable = True
         frame = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
@@ -56,7 +57,7 @@ def get_face_from_frame(frame: np.ndarray, model_selection: int = 0, min_detecti
                     frame.shape[0])
                 
                 if cords_1 != None and cords_2 != None:
-                    face_locations.append((cords_1[0], cords_1[1], cords_2[0], cords_2[1]))
+                    face_locations.append((cords_1[0], cords_1[1], cords_2[0], cords_2[1])) # type: ignore
         
         xmin, ymin, xmax, ymax = max(face_locations, default=(0, 0, 0, 0), key=lambda x: (x[2]-x[0]) * (x[3]-x[1]))
         color_face = frame[ymin:ymax, xmin:xmax]

@@ -47,16 +47,16 @@ def _sign_detection(hand_sign: HandSign, results) -> HandSignDetectionResult:
             finger_name = tip_index.name.split('_')[0]
             
             if (hand_landmarks.landmark[tip_index].y <= hand_landmarks.landmark[tip_index - 2].y):
-                if hand_label == 'Right':
-                    fingers_statuses_right[finger_name] = True
+                if hand_label == HandEnum.right:
+                    fingers_statuses_right[finger_name] = True # type: ignore
                 else:
-                    fingers_statuses_left[finger_name] = True
+                    fingers_statuses_left[finger_name] = True # type: ignore
         
         thumb_tip_x = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].x
         thumb_mcp_x = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP - 1].x
         
-        if (hand_label=='Right' and (thumb_tip_x <= thumb_mcp_x)) or (hand_label=='Left' and (thumb_tip_x >= thumb_mcp_x)):
-            if hand_label == 'Right':
+        if (hand_label==HandEnum.right and (thumb_tip_x <= thumb_mcp_x)) or (hand_label==HandEnum.left and (thumb_tip_x >= thumb_mcp_x)):
+            if hand_label == HandEnum.right:
                 fingers_statuses_right["THUMB"] = True
             else:
                 fingers_statuses_left["THUMB"] = True
@@ -66,8 +66,8 @@ def _sign_detection(hand_sign: HandSign, results) -> HandSignDetectionResult:
         
         if not len(diff_right) or not len(diff_left):
             return HandSignDetectionResult(result=True, hand=hand_label)
-        else:
-            return HandSignDetectionResult(result=False, hand=hand_label)
+        
+    return HandSignDetectionResult(result=False, hand=hand_label)
 
 def hand_sign_detection(image: np.ndarray, hand_sign: HandSign) -> HandSignDetectionResult:
     with mp_hands.Hands(
@@ -81,4 +81,4 @@ def hand_sign_detection(image: np.ndarray, hand_sign: HandSign) -> HandSignDetec
         if results.multi_hand_landmarks:
             return _sign_detection(hand_sign, results)
         else:
-            return HandSignDetectionResult(result=False, hand='Right')
+            return HandSignDetectionResult(result=False, hand=HandEnum.right)

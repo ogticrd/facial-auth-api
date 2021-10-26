@@ -22,7 +22,7 @@ def base64_to_webm(source: str) -> str:
     
     return file_name
 
-def load_short_video(source: str, dims: Tuple[int, int] = (640, 480)) -> List[Optional[np.ndarray]]:
+def load_short_video(source: str, dims: Tuple[int, int] = (640, 480)) -> List[np.ndarray]:
     frames: List[np.ndarray] = []
     
     cap: cv.VideoCapture = cv.VideoCapture(source)
@@ -67,6 +67,6 @@ def save_source_image(frames: List[np.ndarray]) ->  str:
     
     return source_image_path
 
-def get_hand_action() -> Tuple[HandSign, int]:
+def get_hand_action() -> HandSign:
     rand_action = random.randint(0, len(HANDS_ACTIONS) - 1)
     return HANDS_ACTIONS[rand_action]

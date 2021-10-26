@@ -1,23 +1,26 @@
 import os
-import time
 from typing import Dict
-from typing import Union
+from typing import TypedDict
 import requests
 
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 
-def verify(target_path: str, source_path: str) -> Dict[str, Union[bool, float]]:
-    face_client = FaceClient(os.environ.get('FACE_API_ENDPOINT'), CognitiveServicesCredentials(os.environ.get('FACE_API_KEY')))
+class VerifyResult(TypedDict):
+    isIdentical: bool
+    confidence: float
+
+def verify(target_path: str, source_path: str) -> VerifyResult:
+    face_client = FaceClient(os.environ.get('FACE_API_ENDPOINT'), CognitiveServicesCredentials(os.environ.get('FACE_API_KEY', '')))
 
     test_image_array = [target_path, source_path]
     face_ids = []
     for image in test_image_array:
-        image = open(image, 'r+b')
-        face_ids.append(face_client.face.detect_with_stream(image, detection_model='detection_03')[0].face_id)
+        image_io = open(image, 'r+b')
+        face_ids.append(face_client.face.detect_with_stream(image_io, detection_model='detection_03')[0].face_id)
 
     headers: Dict[str, str] = {
-        'Ocp-Apim-Subscription-Key': os.environ.get('FACE_API_KEY'),
+        'Ocp-Apim-Subscription-Key': os.environ.get('FACE_API_KEY', ''),
         'Content-Type': 'application/json'
     }
 
@@ -27,5 +30,5 @@ def verify(target_path: str, source_path: str) -> Dict[str, Union[bool, float]]:
     }
 
     results = requests.post(f'{os.environ.get("FACE_API_ENDPOINT")}/face/v1.0/verify', headers=headers, json=data)
-    
-    return results.json()
+    json_results = results.json()
+    return VerifyResult(isIdentical=json_results['isIdentical'], confidence=json_results['confidence'])

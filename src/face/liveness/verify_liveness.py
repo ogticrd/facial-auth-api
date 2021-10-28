@@ -6,22 +6,20 @@ else:
     from typing_extensions import TypedDict
 
 from typing import List
-import statistics
 import numpy as np
-import cv2 as cv
 
-from .landmarks import landmarks_detection
-from .blink import blink_detection
-from .blur import blur_detection
-from .lbp import LocalBinaryPatterns
+from . import landmarks_detection
+from . import blink_detection
+from . import blur_detection
+from . import LocalBinaryPatterns
 
 from ..config import RIGHT_EYE
 from ..config import LEFT_EYE
 from ..face_detection import get_face_from_frame
 
-from .hand import hand_sign_detection
-from .hand import HandSign
-from .hand import HandEnum
+from . import hand_sign_detection
+from . import HandSign
+from . import HandEnum
 
 class LivenessResult(TypedDict):
     is_alive: bool
@@ -42,7 +40,6 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
     closed_eyes_frames_counter: int = 0
     total_blink: int = 0
     lbp_per_frames: List[float] = []
-    # hand_sign_result = {'frames': 0, 'hand': '', 'one_hand': True}
     hand_sign_result = HangSignResultValues(frames=0, hand=HandEnum.right, one_hand=True)
     
     for frame in frames:

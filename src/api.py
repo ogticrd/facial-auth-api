@@ -17,8 +17,6 @@ from fastapi import Body
 from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
-from pydantic import Field
 import requests
 from rejson import Client
 from rejson import Path
@@ -28,24 +26,13 @@ from dependencies import load_short_video
 from dependencies import get_target_image
 from dependencies import save_source_image
 from dependencies import get_hand_action
+
+from types.api import ChallengeResponse
+from types.api import FaceAuthModel
+
 import face
 
 rj = Client(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379), decode_responses=True)
-
-class ChallengeResponse(TypedDict):
-    id: Union[str, uuid.UUID]
-    sign: face.liveness.hand.HandSign
-
-class FaceAuthModel(BaseModel):
-    cedula: str = Field(
-        ..., 
-        title="Document ID number", 
-        max_length=11,
-        min_length=11,
-        regex='^([0-9]+)$'
-    )
-    source: str = Field(...,  title="Source to verify")
-    id: Union[str, uuid.UUID]
 
 app = FastAPI(
     title='Facial Authentication API',

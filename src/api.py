@@ -27,8 +27,8 @@ from dependencies import get_target_image
 from dependencies import save_source_image
 from dependencies import get_hand_action
 
-from .types.api import ChallengeResponse
-from .types.api import FaceAuthModel
+from src.types.api import ChallengeResponse
+from src.types.api import FaceAuthModel
 
 import face
 

@@ -2,7 +2,6 @@ import os
 import base64
 import tempfile
 from typing import List
-from typing import Optional
 from typing import Tuple
 from typing import Union
 import requests
@@ -12,7 +11,7 @@ import numpy as np
 import cv2 as cv
 
 from config import HANDS_ACTIONS
-from face.liveness.hand import HandSign
+from face.liveness import HandSign
 
 def base64_to_webm(source: str) -> str:
     file_name: str = tempfile.mkstemp()[1] + '.webm'

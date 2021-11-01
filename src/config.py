@@ -1,4 +1,4 @@
-from face.liveness.hand import HandSign
+from face.liveness import HandSign
 
 HANDS_ACTIONS = [
     HandSign(THUMB=False, INDEX=False, MIDDLE=False, RING=False, PINKY=False),

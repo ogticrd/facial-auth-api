@@ -27,8 +27,8 @@ from dependencies import get_target_image
 from dependencies import save_source_image
 from dependencies import get_hand_action
 
-from src.types.api import ChallengeResponse
-from src.types.api import FaceAuthModel
+from types_utils import ChallengeResponse
+from types_utils import FaceAuthModel
 
 import face
 
@@ -92,7 +92,7 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     
     expected_sign  = rj.jsonget(data.id, Path.rootPath())
     if expected_sign:
-        hand_sign_action = face.liveness.hand.HandSign(expected_sign)
+        hand_sign_action = face.liveness.HandSign(expected_sign)
         rj.jsondel(data.id, Path.rootPath())
     else:
         raise HTTPException(status_code=400, detail='Bad sign id.')

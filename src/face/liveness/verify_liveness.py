@@ -1,10 +1,3 @@
-import sys
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
-
 from typing import List
 import numpy as np
 
@@ -18,20 +11,11 @@ from ..config import LEFT_EYE
 from ..face_detection import get_face_from_frame
 
 from . import hand_sign_detection
-from . import HandSign
-from . import HandEnum
 
-class LivenessResult(TypedDict):
-    is_alive: bool
-    alive_ratio: float
-    total_blink: int
-    blur_average: float
-    lbp_average: float
-
-class HangSignResultValues(TypedDict):
-    frames: int
-    hand: HandEnum
-    one_hand: bool
+from .types_utils import HandSign
+from .types_utils import HandEnum
+from .types_utils import LivenessResult
+from .types_utils import HandSignResultValues
 
 desc = LocalBinaryPatterns(24, 8)
 
@@ -40,7 +24,7 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
     closed_eyes_frames_counter: int = 0
     total_blink: int = 0
     lbp_per_frames: List[float] = []
-    hand_sign_result = HangSignResultValues(frames=0, hand=HandEnum.right, one_hand=True)
+    hand_sign_result = HandSignResultValues(frames=0, hand=HandEnum.right, one_hand=True)
     
     for frame in frames:
         color_face, gray_face = get_face_from_frame(frame)
@@ -50,12 +34,12 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
         hand_output = hand_sign_detection(frame, hand_sign=hand_sign_action)
         
         
-        if hand_output['result']:
-            if hand_sign_result['frames'] == 0:
-                hand_sign_result['hand'] = hand_output['hand']
+        if hand_output.result:
+            if hand_sign_result.frames == 0:
+                hand_sign_result.hand = hand_output.hand
         
-            hand_sign_result['frames'] += 1
-            hand_sign_result['one_hand'] = False if hand_sign_result['hand'] != hand_output['hand'] else True
+            hand_sign_result.frames += 1
+            hand_sign_result.one_hand = False if hand_sign_result.hand != hand_output.hand else True
         
         try:
             lbp_value = desc.get_lbp_max(gray_face)
@@ -74,7 +58,7 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
             closed_eyes_frames_counter = 0
 
     lbp_average = sum(lbp_per_frames)/len(lbp_per_frames)
-    if (total_blink >= 0 and total_blink < 4) and (hand_sign_result['frames'] > 0 and hand_sign_result['one_hand']) and (lbp_average > 0.05):
+    if (total_blink >= 0 and total_blink < 4) and (hand_sign_result.frames > 0 and hand_sign_result.one_hand) and (lbp_average > 0.05):
         is_alive = True
     
     return LivenessResult(is_alive=is_alive, alive_ratio=0.0, total_blink=total_blink, blur_average=0.0, lbp_average=lbp_average)

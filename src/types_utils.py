@@ -12,9 +12,14 @@ from pydantic import Field
 
 from face.liveness import HandSign
 
-class ChallengeResponse(TypedDict):
+class ChallengeResponse(BaseModel):
     id: Union[str, uuid.UUID]
     sign: HandSign
+
+class VerifyResponse(BaseModel):
+    verified: bool
+    face_verified: bool
+    is_alive: bool
 
 class FaceAuthModel(BaseModel):
     cedula: str = Field(

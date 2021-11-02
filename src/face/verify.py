@@ -7,13 +7,9 @@ from pydantic import BaseModel
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 
-
 class VerifyResult(BaseModel):
     isIdentical: bool
     confidence: float
-# class VerifyResult(TypedDict):
-#     isIdentical: bool
-#     confidence: float
 
 def verify(target_path: str, source_path: str) -> VerifyResult:
     face_client = FaceClient(os.environ.get('FACE_API_ENDPOINT'), CognitiveServicesCredentials(os.environ.get('FACE_API_KEY', '')))

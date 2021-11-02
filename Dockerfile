@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 ENV PORT=80
 ENV HOST="0.0.0.0"
@@ -7,11 +7,10 @@ ENV REDIS_PORT=6379
 
 WORKDIR /code
 
-COPY ./requirements.txt /code/requirements.txt
-COPY ./static /code/static
-
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 -y
 
+COPY ./requirements.txt /code/requirements.txt
+COPY ./static /code/static
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 

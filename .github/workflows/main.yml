@@ -45,3 +45,14 @@ jobs:
     - name: Run typechecking with mypy
       run: |
         mypy --install-types --non-interactive src
+  deploy:
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+        
+      - id: test
+        run: echo "${GITHUB_REF_SLUG}"
+    

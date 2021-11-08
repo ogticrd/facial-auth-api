@@ -6,6 +6,8 @@ services:
       - "8080:80"
     depends_on:
       - redis
+    env_file: 
+      - .env
     environment:
       - REDIS_HOST=redis
     links:

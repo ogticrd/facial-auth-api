@@ -2,13 +2,6 @@ import sys
 import os
 import uuid
 from os.path import abspath, dirname, join
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
-
-from typing import Union
 sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
 import uvicorn
@@ -17,8 +10,6 @@ from fastapi import Body
 from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
-from pydantic import Field
 import requests
 from rejson import Client
 from rejson import Path
@@ -28,24 +19,14 @@ from dependencies import load_short_video
 from dependencies import get_target_image
 from dependencies import save_source_image
 from dependencies import get_hand_action
+
+from types_utils import ChallengeResponse
+from types_utils import VerifyResponse
+from types_utils import FaceAuthModel
+
 import face
 
 rj = Client(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379), decode_responses=True)
-
-class ChallengeResponse(TypedDict):
-    id: Union[str, uuid.UUID]
-    sign: face.liveness.hand.HandSign
-
-class FaceAuthModel(BaseModel):
-    cedula: str = Field(
-        ..., 
-        title="Document ID number", 
-        max_length=11,
-        min_length=11,
-        regex='^([0-9]+)$'
-    )
-    source: str = Field(...,  title="Source to verify")
-    id: Union[str, uuid.UUID]
 
 app = FastAPI(
     title='Facial Authentication API',
@@ -79,14 +60,14 @@ def root():
     </html>
     """
 
-@app.get('/challenge')
+@app.get('/challenge', response_model=ChallengeResponse)
 def challenge():
     id = uuid.uuid4()
     sign = get_hand_action()
-    rj.jsonset(str(id), Path.rootPath(), sign)
+    rj.jsonset(str(id), Path.rootPath(), dict(sign))
     return ChallengeResponse(id=id, sign=sign)
 
-@app.post('/verify')
+@app.post('/verify', response_model=VerifyResponse)
 def verify(data: FaceAuthModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
     
@@ -103,18 +84,20 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     except IndexError:
         raise HTTPException(status_code=400, detail='Not face detected.')
     
-    expected_sign  = rj.jsonget(data.id, Path.rootPath())
+    expected_sign = rj.jsonget(data.id, Path.rootPath())
     if expected_sign:
-        hand_sign_action = face.liveness.hand.HandSign(expected_sign)
+        hand_sign_action = face.liveness.HandSign(**expected_sign)
         rj.jsondel(data.id, Path.rootPath())
     else:
         raise HTTPException(status_code=400, detail='Bad sign id.')
     
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
     
-    return {'verified': True if results_recog['isIdentical'] and results_live['is_alive'] else False, 
-            'face_verified': results_recog["isIdentical"], 
-            'is_alive': results_live["is_alive"]}
+    return VerifyResponse(
+        verified=True if results_recog.isIdentical and results_live.is_alive else False,
+        face_verified=results_recog.isIdentical,
+        is_alive=results_live.is_alive
+    )
 
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))

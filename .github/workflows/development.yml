@@ -3,7 +3,7 @@ name: Dev deployment
 on:
   pull_request:
     branches:
-      - "master"
+      - "develop"
     paths:
       - '**.py'
       - 'package*.json'
@@ -14,7 +14,7 @@ on:
 
 env:
   # Deployment variables
-  PROJECT_NAME: facial-atuh
+  PROJECT_NAME: facial-auth
   GAR_BASE: us-docker.pkg.dev/${{ secrets.GCP_PROJECT }}
 
 jobs:
@@ -90,7 +90,6 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          target: release
           tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           build-args: |
             CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }}
@@ -123,6 +122,7 @@ jobs:
             CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }},
             FACE_API_KEY=${{ secrets.FACE_API_KEY }},
             FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master

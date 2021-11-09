@@ -11,7 +11,6 @@ from fastapi import Body
 from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-# from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.cors import CORSMiddleware
 import requests
 import redis
@@ -42,6 +41,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_origin_regex='https?://.*',
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

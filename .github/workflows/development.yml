@@ -3,7 +3,7 @@ name: Dev deployment
 on:
   pull_request:
     branches:
-      - "master"
+      - "develop"
     paths:
       - '**.py'
       - 'package*.json'

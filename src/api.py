@@ -26,7 +26,7 @@ from types_utils import FaceAuthModel
 
 import face
 
-redis = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379))
+r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6379)))
 
 app = FastAPI(
     title='Facial Authentication API',
@@ -64,7 +64,7 @@ def root():
 def challenge():
     id = uuid.uuid4()
     sign = get_hand_action()
-    redis.set(str(id), json.dumps(dict(sign)))
+    r.set(str(id), json.dumps(dict(sign)))
     return ChallengeResponse(id=id, sign=sign)
 
 @app.post('/verify', response_model=VerifyResponse)
@@ -84,10 +84,11 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     except IndexError:
         raise HTTPException(status_code=400, detail='Not face detected.')
     
-    expected_sign = json.loads(redis.get(data.id))
-    if expected_sign:
+    challenge = r.get(data.id)
+    if challenge:
+        expected_sign = json.loads(challenge)
         hand_sign_action = face.liveness.HandSign(**expected_sign)
-        redis.delete(data.id)
+        r.delete(data.id)
     else:
         raise HTTPException(status_code=400, detail='Bad sign id.')
     

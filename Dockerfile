@@ -3,15 +3,19 @@ FROM python:3.9-slim
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
-# Copy local code to the container image.
+# Set environment for the application
 ENV APP_HOME /app
 WORKDIR $APP_HOME
-COPY . ./
 
 # Install production dependencies.
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 -y
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy local code to the container image.
+COPY . ./
+
+ENV HOST 0.0.0.0
 ENV PORT 80
 EXPOSE $PORT
 

@@ -61,10 +61,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: ${{ env.GAR_BASE }}/${{env.PROJECT_NAME}}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
-          build-args: |
-            CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }}
-            FACE_API_KEY=${{ secrets.FACE_API_KEY }}
-            FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }}
           push: true
           cache-from: type=registry,ref=${{ env.GAR_BASE }}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           cache-to: type=inline
@@ -91,6 +87,7 @@ jobs:
             CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }},
             FACE_API_KEY=${{ secrets.FACE_API_KEY }},
             FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
 
       - name: Testing Service with curl
         run: curl "${{ steps.deploy.outputs.url }}"

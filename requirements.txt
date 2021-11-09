@@ -5,6 +5,7 @@ requests==2.26.0
 azure-cognitiveservices-vision-face==0.5.0
 scikit-image==0.18.3
 fastapi==0.68.1
+gunicorn==20.1.0
 uvicorn[standard]==0.15.0
 pydantic==1.8.2
 aiofiles==0.7.0

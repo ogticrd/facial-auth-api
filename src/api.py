@@ -1,6 +1,7 @@
 import sys
 import os
 import uuid
+import json
 from os.path import abspath, dirname, join
 sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
@@ -11,8 +12,7 @@ from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import requests
-from rejson import Client
-from rejson import Path
+import redis
 
 from dependencies import base64_to_webm
 from dependencies import load_short_video
@@ -26,7 +26,7 @@ from types_utils import FaceAuthModel
 
 import face
 
-rj = Client(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379), decode_responses=True)
+redis = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379))
 
 app = FastAPI(
     title='Facial Authentication API',
@@ -64,7 +64,7 @@ def root():
 def challenge():
     id = uuid.uuid4()
     sign = get_hand_action()
-    rj.jsonset(str(id), Path.rootPath(), dict(sign))
+    redis.set(str(id), json.dumps(dict(sign)))
     return ChallengeResponse(id=id, sign=sign)
 
 @app.post('/verify', response_model=VerifyResponse)
@@ -84,10 +84,10 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     except IndexError:
         raise HTTPException(status_code=400, detail='Not face detected.')
     
-    expected_sign = rj.jsonget(data.id, Path.rootPath())
+    expected_sign = json.loads(redis.get(data.id))
     if expected_sign:
         hand_sign_action = face.liveness.HandSign(**expected_sign)
-        rj.jsondel(data.id, Path.rootPath())
+        redis.delete(data.id)
     else:
         raise HTTPException(status_code=400, detail='Bad sign id.')
     

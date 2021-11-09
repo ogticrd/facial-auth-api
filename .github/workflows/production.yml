@@ -7,7 +7,7 @@ on:
 
 env:
   # Deployment variables
-  PROJECT_NAME: facial-atuh
+  PROJECT_NAME: facial-auth
   GAR_BASE: us-docker.pkg.dev/${{ secrets.GCP_PROJECT }}
 
 jobs:

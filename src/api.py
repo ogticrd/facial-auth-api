@@ -11,6 +11,7 @@ from fastapi import Body
 from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 import redis
 
@@ -34,6 +35,15 @@ app = FastAPI(
     version='0.1', 
     docs_url='/docs', 
     redoc_url='/redoc'
+)
+
+#CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 app.mount('/static', StaticFiles(directory='static'), name='static')

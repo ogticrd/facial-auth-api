@@ -5,7 +5,8 @@ on:
     branches:
       - "master"
     paths:
-      - '**.py'
+      - '**/*.py'
+      - 'requirements.txt'
       - 'Dockerfile'
       - 'entrypoint.sh'
       - '.github/workflows/staging.yml'

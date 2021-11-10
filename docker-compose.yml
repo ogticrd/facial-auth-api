@@ -13,4 +13,4 @@ services:
     links:
       - redis
   redis:
-    image: redislabs/rejson:2.0.0
+    image: redis

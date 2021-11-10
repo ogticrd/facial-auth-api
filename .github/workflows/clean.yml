@@ -3,7 +3,7 @@ name: Deployment cleaner
 on:
   pull_request:
     branches:
-      - "staging"
+      - "develop"
       - "master"
     types: [ closed ]
 

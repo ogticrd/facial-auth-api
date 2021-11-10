@@ -83,10 +83,12 @@ jobs:
           service: ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}-${{ needs.versioning.outputs.version }}
           credentials: ${{ secrets.GAR_JSON_KEY }}
           region: ${{ secrets.GCP_REGION }}
+          flags: |
+            --vpc-connector=projects/${{ secrets.GCP_PROJECT }}/locations/${{ secrets.GCP_REGION }}/connectors/${{ secrets.GCP_REGION }}
           env_vars: |
             CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }},
             FACE_API_KEY=${{ secrets.FACE_API_KEY }},
-            FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }}
+            FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }},
             REDIS_HOST=${{ secrets.REDIS_HOST }}
 
       - name: Testing Service with curl

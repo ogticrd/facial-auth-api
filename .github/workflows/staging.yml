@@ -5,7 +5,8 @@ on:
     branches:
       - "master"
     paths:
-      - '**.py'
+      - '**/*.py'
+      - 'requirements.txt'
       - 'Dockerfile'
       - 'entrypoint.sh'
       - '.github/workflows/staging.yml'
@@ -25,6 +26,7 @@ jobs:
       
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -110,10 +112,12 @@ jobs:
           service: ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}-${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           credentials: ${{ secrets.GAR_JSON_KEY }}
           region: ${{ secrets.GCP_REGION }}
+          flags: |
+            --vpc-connector=projects/${{ secrets.GCP_PROJECT }}/locations/${{ secrets.GCP_REGION }}/connectors/${{ secrets.GCP_REGION }}
           env_vars: |
             CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }},
             FACE_API_KEY=${{ secrets.FACE_API_KEY }},
-            FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }}
+            FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }},
             REDIS_HOST=${{ secrets.REDIS_HOST }}
 
       - name: Set up Cloud SDK

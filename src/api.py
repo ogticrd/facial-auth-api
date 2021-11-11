@@ -7,6 +7,8 @@ sys.path.insert(1, abspath(join(dirname(dirname(__file__)), 'src')))
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi import WebSocket
+from fastapi import WebSocketDisconnect
 from fastapi import Body
 from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -20,6 +22,8 @@ from dependencies import load_short_video
 from dependencies import get_target_image
 from dependencies import save_source_image
 from dependencies import get_hand_action
+
+from src.websocket import ConnectionManager
 
 from types_utils import ChallengeResponse
 from types_utils import VerifyResponse
@@ -37,7 +41,9 @@ app = FastAPI(
     redoc_url='/redoc'
 )
 
-#CORS
+# Websocket manager
+manager = ConnectionManager()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -66,7 +72,7 @@ def root():
     </head>
     <body>
         <h1>Face Recognition OGTIC Example</h1>
-        <script src="/static/sketch.js"></script>
+        <script src="/static/sketch-websocket.js"></script>
     </body>
     </html>
     """
@@ -110,6 +116,17 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
         face_verified=results_recog.isIdentical,
         is_alive=results_live.is_alive
     )
+
+@app.websocket('/verify')
+async def websocket_verify(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await manager.receive(websocket)
+            print(data)
+            await manager.send(websocket)
+    except WebSocketDisconnect:
+        await manager.disconnect(websocket)
 
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))

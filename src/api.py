@@ -28,6 +28,7 @@ from types_utils import FaceAuthModel
 
 import face
 
+# logs
 log_dir = os.environ.get('LOG_DIR', './logs/')
 logger.add(os.path.join(log_dir, 'file_{time}.log'))
 
@@ -41,7 +42,6 @@ app = FastAPI(
     redoc_url='/redoc'
 )
 
-#CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

@@ -53,6 +53,10 @@ pip install -r requirements.txt
 uvicorn src.api:app
 ```
 
+## Logs
+
+The logs files are locate at `./logs/`
+
 ## Authors
 
 * [Eddy Decena](https://github.com/eddynelson)

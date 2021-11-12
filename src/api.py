@@ -28,6 +28,8 @@ from types_utils import FaceAuthModel
 
 import face
 
+logger.add("./logs/file_{time}.log")
+
 r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6379)))
 
 app = FastAPI(

@@ -5,9 +5,10 @@ on:
     branches:
       - "*"
       - "!master"
-    # paths:
-    #   - '**/**/*.py'
-    #   - '.github/workflows/lint.yml'
+      - "feature/*"
+    paths:
+      - '**/**/*.py'
+      - '.github/workflows/lint.yml'
 
 jobs:
   lint:

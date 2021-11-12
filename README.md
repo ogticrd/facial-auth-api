@@ -25,6 +25,7 @@ PORT=80
 HOST="0.0.0.0"
 REDIS_HOST='localhost'
 REDIS_PORT=6379
+LOG_DIR='/var/logs/facial-auth-api/'
 
 # Require
 CEDULA_API_KEY=...
@@ -52,10 +53,6 @@ cd facial-auth-api
 pip install -r requirements.txt
 uvicorn src.api:app
 ```
-
-## Logs
-
-The logs files are locate at `./logs/`
 
 ## Authors
 

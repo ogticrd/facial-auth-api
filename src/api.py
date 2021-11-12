@@ -28,7 +28,8 @@ from types_utils import FaceAuthModel
 
 import face
 
-logger.add("./logs/file_{time}.log")
+log_dir = os.environ.get('LOG_DIR', './logs/')
+logger.add(os.path.join(log_dir, 'file_{time}.log'))
 
 r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6379)))
 

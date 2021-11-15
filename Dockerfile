@@ -3,6 +3,8 @@ FROM python:3.9-slim
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
+ENV LOG_DIR /var/log/facial-auth-api/
+
 # Set environment for the application
 ENV APP_HOME /app
 WORKDIR $APP_HOME

@@ -14,6 +14,7 @@ from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
+from loguru import logger
 import requests
 import redis
 
@@ -30,6 +31,10 @@ from types_utils import VerifyResponse
 from types_utils import FaceAuthModel
 
 import face
+
+# logs
+log_dir = os.environ.get('LOG_DIR', './logs/')
+logger.add(os.path.join(log_dir, 'file_{time}.log'))
 
 r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6379)))
 
@@ -88,9 +93,12 @@ def challenge():
 def verify(data: FaceAuthModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
     
+    logger.debug(f"Video temporarily saved at {video_path}")
+    
     try:
         target_path = get_target_image(data.cedula)
     except requests.HTTPError:
+        logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image.")
         raise HTTPException(status_code=400, detail='Error trying to get cedula photo.')
     
     frames = load_short_video(video_path)
@@ -99,6 +107,7 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
     try:
         results_recog = face.verify(target_path, source_path)
     except IndexError:
+        logger.error(f"Not face detected - Somthing had occur at src.face.verify")
         raise HTTPException(status_code=400, detail='Not face detected.')
     
     challenge = r.get(data.id)
@@ -107,10 +116,12 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
         hand_sign_action = face.liveness.HandSign(**expected_sign)
         r.delete(data.id)
     else:
-        raise HTTPException(status_code=400, detail='Bad sign id.')
+        logger.error(f"Invalid sign id - Sign id does not exit in redis")
+        raise HTTPException(status_code=400, detail='Invalid sign id.')
     
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
     
+    logger.error(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
     return VerifyResponse(
         verified=True if results_recog.isIdentical and results_live.is_alive else False,
         face_verified=results_recog.isIdentical,

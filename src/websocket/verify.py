@@ -49,7 +49,11 @@ class VerifyConnectionManager(IConnectionManager):
         
         logger.debug(f'Source image path: {source_path}')
         
-        return {'name': 'Nami'}
+        return VerifyResponse(
+            verified=False,
+            face_verified=False,
+            is_alive=False
+        )
         
         # try:
         #     results_recog = face.verify(target_path, source_path)

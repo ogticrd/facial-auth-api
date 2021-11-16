@@ -20,9 +20,9 @@ class IConnectionManager(metaclass=ABCMeta):
         self.active_connections.remove(websocket)
     
     @abstractmethod
-    async def receive(self):
+    async def receive(self, websocket: WebSocket):
         NotImplementedError('Implement it then call it')
     
     @abstractmethod
-    async def send(self):
+    async def send(self, websocket: WebSocket, data):
         NotImplementedError('Implement it then call it')

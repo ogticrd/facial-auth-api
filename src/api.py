@@ -24,11 +24,11 @@ from dependencies import get_target_image
 from dependencies import save_source_image
 from dependencies import get_hand_action
 
-from src.websocket import ConnectionManager
+from src.websocket import VerifyConnectionManager
 
 from types_utils import ChallengeResponse
 from types_utils import VerifyResponse
-from types_utils import FaceAuthModel
+from types_utils import VerifyRequestModel
 
 import face
 
@@ -47,7 +47,7 @@ app = FastAPI(
 )
 
 # Websocket manager
-manager = ConnectionManager()
+verify_manager = VerifyConnectionManager()
 
 app.add_middleware(
     CORSMiddleware,
@@ -77,7 +77,7 @@ def root():
     </head>
     <body>
         <h1>Face Recognition OGTIC Example</h1>
-        <script src="/static/sketch-websocket.js"></script>
+        <script src="/static/sketch-copy.js"></script>
     </body>
     </html>
     """
@@ -90,7 +90,7 @@ def challenge():
     return ChallengeResponse(id=id, sign=sign)
 
 @app.post('/verify', response_model=VerifyResponse)
-def verify(data: FaceAuthModel = Body(..., embed=True)):
+def verify(data: VerifyRequestModel = Body(..., embed=True)):
     video_path = base64_to_webm(data.source.split(',')[1])
     
     logger.debug(f"Video temporarily saved at {video_path}")
@@ -130,14 +130,13 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
 
 @app.websocket('/verify')
 async def websocket_verify(websocket: WebSocket):
-    await manager.connect(websocket)
+    await verify_manager.connect(websocket)
     try:
         while True:
-            data = await manager.receive(websocket)
-            print(data)
-            await manager.send(websocket)
+            data = await verify_manager.receive(websocket)
+            await verify_manager.send(websocket, dict(data))
     except WebSocketDisconnect:
-        await manager.disconnect(websocket)
+        await verify_manager.disconnect(websocket)
 
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))

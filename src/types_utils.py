@@ -21,7 +21,7 @@ class VerifyResponse(BaseModel):
     face_verified: bool
     is_alive: bool
 
-class FaceAuthModel(BaseModel):
+class VerifyRequestModel(BaseModel):
     cedula: str = Field(
         ..., 
         title="Document ID number", 

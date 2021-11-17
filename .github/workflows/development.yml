@@ -58,7 +58,7 @@ jobs:
   #       mypy --install-types --non-interactive src
 
   build:
-    # needs: ['test']
+    needs: ['test']
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 

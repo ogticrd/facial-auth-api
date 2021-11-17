@@ -77,7 +77,7 @@ def root():
     </head>
     <body>
         <h1>Face Recognition OGTIC Example</h1>
-        <script src="/static/sketch-copy.js"></script>
+        <script src="/static/sketch.js"></script>
     </body>
     </html>
     """
@@ -127,6 +127,13 @@ def verify(data: VerifyRequestModel = Body(..., embed=True)):
         face_verified=results_recog.isIdentical,
         is_alive=results_live.is_alive
     )
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
 
 @app.websocket('/verify')
 async def websocket_verify(websocket: WebSocket):

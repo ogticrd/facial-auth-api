@@ -132,7 +132,7 @@ jobs:
       - name: Allow unauthenticated calls to the service
         run: |
           gcloud run services add-iam-policy-binding ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}-${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }} \
-          --region=${{ secrets.GCP_REGION }} --member=allUsers --role=roles/run.invoker --quiet --allow-unauthenticated
+          --region=${{ secrets.GCP_REGION }} --member=allUsers --role=roles/run.invoker --quiet
 
       # Example of using the output
       - id: test

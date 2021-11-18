@@ -159,4 +159,4 @@ def disconnect(sid):
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))
     host: str = os.environ.get('HOST', "localhost")
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(socketio_app, host=host, port=port)

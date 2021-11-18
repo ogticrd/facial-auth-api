@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
+import socketio
 from loguru import logger
 import requests
 import redis
@@ -42,6 +43,9 @@ app = FastAPI(
     redoc_url='/redoc'
 )
 
+sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='asgi')
+socketio_app = socketio.ASGIApp(sio, app)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -70,7 +74,8 @@ def root():
     </head>
     <body>
         <h1>Face Recognition OGTIC Example</h1>
-        <script src="/static/sketch.js"></script>
+        <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+        <script src="/static/sketch-io.js"></script>
     </body>
     </html>
     """
@@ -120,6 +125,36 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
         face_verified=results_recog.isIdentical,
         is_alive=results_live.is_alive
     )
+
+# Socket.io events
+
+@sio.event
+def connect(sid, environ):
+    print("connect ", sid)
+
+@sio.on('verify')
+async def chat_message(sid, data):
+    data = FaceAuthModel(**data)
+    video_path = base64_to_webm(data.source.split(',')[1])
+    
+    logger.debug(f"Video temporarily saved at {video_path}")
+    
+    try:
+        target_path = get_target_image(data.cedula)
+        logger.debug(f'Target path: {target_path}')
+    except requests.HTTPError:
+        logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image.")
+        # raise HTTPException(status_code=400, detail='Error trying to get cedula photo.')
+    
+    frames = load_short_video(video_path)
+    source_path = save_source_image(frames)
+    logger.debug(f'Source path: {source_path}')
+    
+    await sio.emit('result', data, to=sid)
+
+@sio.event
+def disconnect(sid):
+    print('disconnect ', sid)
 
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))

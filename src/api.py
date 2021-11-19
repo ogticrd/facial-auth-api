@@ -140,6 +140,20 @@ async def chat_message(sid, data):
     logger.debug(f'Executing verify with data verified! SID: {sid}')
     logger.debug(dict(data))
     
+    video_path = base64_to_webm(data.source.split(',')[1])
+    
+    logger.debug(f"Video temporarily saved at {video_path}. SID: {sid}")
+    
+    try:
+        target_path = get_target_image(data.cedula)
+    except requests.HTTPError:
+        logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image. SID: {sid}")
+    
+    frames = load_short_video(video_path)
+    source_path = save_source_image(frames)
+    
+    logger.debug(f"Source image temporarily saved at {source_path}. SID: {sid}")
+    
     result = VerifyResponse(verified=False, face_verified=False, is_alive=False)
     
     await sio.emit('result', dict(result), to=sid)

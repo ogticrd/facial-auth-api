@@ -134,23 +134,17 @@ def connect(sid, environ):
 
 @sio.on('verify')
 async def chat_message(sid, data):
+    logger.debug(f'Executing verify... SID: {sid}')
     data = FaceAuthModel(**data)
-    video_path = base64_to_webm(data.source.split(',')[1])
     
-    logger.debug(f"Video temporarily saved at {video_path}")
+    logger.debug(f'Executing verify with data verified! SID: {sid}')
+    logger.debug(dict(data))
     
-    try:
-        target_path = get_target_image(data.cedula)
-        logger.debug(f'Target path: {target_path}')
-    except requests.HTTPError:
-        logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image.")
-        # raise HTTPException(status_code=400, detail='Error trying to get cedula photo.')
+    result = VerifyResponse(verified=False, face_verified=False, is_alive=False)
     
-    frames = load_short_video(video_path)
-    source_path = save_source_image(frames)
-    logger.debug(f'Source path: {source_path}')
-    
-    await sio.emit('result', data, to=sid)
+    await sio.emit('result', dict(result), to=sid)
+    logger.debug(f'Sent to result! SID: {sid}')
+    logger.debug(dict(result))
 
 @sio.event
 def disconnect(sid):

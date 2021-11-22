@@ -148,13 +148,38 @@ async def chat_message(sid, data):
         target_path = get_target_image(data.cedula)
     except requests.HTTPError:
         logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image. SID: {sid}")
+        await sio.emit('result', {'error': 'Error trying to get cedula'})
     
     frames = load_short_video(video_path)
     source_path = save_source_image(frames)
     
     logger.debug(f"Source image temporarily saved at {source_path}. SID: {sid}")
     
-    result = VerifyResponse(verified=False, face_verified=False, is_alive=False)
+    try:
+        results_recog = face.verify(target_path, source_path)
+    except IndexError:
+        logger.error(f"Not face detected - Somthing had occur at src.face.verify")
+        await sio.emit('result', {'error': 'Not face detected'})
+    
+    challenge = r.get(data.id)
+    if challenge:
+        logger.debug(f"Retrive Challenge from cache. SID: {sid}")
+        expected_sign = json.loads(challenge)
+        hand_sign_action = face.liveness.HandSign(**expected_sign)
+        r.delete(data.id)
+    else:
+        logger.error(f"Invalid sign id - Sign id does not exit in redis")
+        raise HTTPException(status_code=400, detail='Invalid sign id.')
+
+    results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
+    
+    logger.error(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
+
+    result = VerifyResponse(
+        verified=True if results_recog.isIdentical and results_live.is_alive else False,
+        face_verified=results_recog.isIdentical,
+        is_alive=results_live.is_alive
+    )
     
     await sio.emit('result', dict(result), to=sid)
     logger.debug(f'Sent to result! SID: {sid}')

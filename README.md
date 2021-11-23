@@ -54,6 +54,13 @@ pip install -r requirements.txt
 uvicorn src.api:app
 ```
 
+## Socket.io Docs
+
+| Event   | Description            | Emitter  | Input Schema                                  | Input data type  | Output schema  | Output data type  |
+| --------| -----------------------|----------|-----------------------------------------------|------------------|----------------|-------------------|
+| verify  | Event to verify users  | False    | {cedula: String, source: String, id: String}  | json             | Not output     | N/A               |
+| result  | Result of verification | True     | Not inputs                                    | N/A              | {verified: Bool, face_verified: Bool, is_alive: Bool}              | json              |
+
 ## Authors
 
 * [Eddy Decena](https://github.com/eddynelson)

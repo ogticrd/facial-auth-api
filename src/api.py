@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
+from pydantic import ValidationError
 import socketio
 from loguru import logger
 import requests
@@ -26,6 +27,7 @@ from dependencies import get_hand_action
 from types_utils import ChallengeResponse
 from types_utils import VerifyResponse
 from types_utils import FaceAuthModel
+from types_utils import SocketErrorResult
 
 import face
 
@@ -36,9 +38,6 @@ logger.add(os.path.join(log_dir, 'file_{time}.log'))
 r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6379)))
 
 app = FastAPI(
-    title='Facial Authentication API',
-    description='An API to verify users using their faces and document ID (Cédula) photo.',
-    version='0.1', 
     docs_url='/docs', 
     redoc_url='/redoc'
 )
@@ -75,7 +74,7 @@ def root():
     <body>
         <h1>Face Recognition OGTIC Example</h1>
         <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-        <script src="/static/sketch-io.js"></script>
+        <script src="/static/sketch.js"></script>
     </body>
     </html>
     """
@@ -135,10 +134,14 @@ def connect(sid, environ):
 @sio.on('verify')
 async def chat_message(sid, data):
     logger.debug(f'Executing verify... SID: {sid}')
-    data = FaceAuthModel(**data)
-    
-    logger.debug(f'Executing verify with data verified! SID: {sid}')
-    logger.debug(dict(data))
+    try:
+        data = FaceAuthModel(**data)
+        logger.debug(f'Executing verify with data verified! SID: {sid}')
+        logger.debug(dict(data))
+    except ValidationError:
+        logger.error(f"Input data is not valid. SID: {sid}")
+        await sio.emit('result', SocketErrorResult(error='Input data is not valid'))
+        return
     
     video_path = base64_to_webm(data.source.split(',')[1])
     
@@ -148,7 +151,8 @@ async def chat_message(sid, data):
         target_path = get_target_image(data.cedula)
     except requests.HTTPError:
         logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image. SID: {sid}")
-        await sio.emit('result', {'error': 'Error trying to get cedula'})
+        await sio.emit('result', SocketErrorResult(error='Error trying to get cedula'))
+        return
     
     frames = load_short_video(video_path)
     source_path = save_source_image(frames)
@@ -158,8 +162,9 @@ async def chat_message(sid, data):
     try:
         results_recog = face.verify(target_path, source_path)
     except IndexError:
-        logger.error(f"Not face detected - Somthing had occur at src.face.verify")
-        await sio.emit('result', {'error': 'Not face detected'})
+        logger.error(f"Not face detected - Somthing had occur at src.face.verify SID: {sid}")
+        await sio.emit('result', SocketErrorResult(error='Not face detected'))
+        return 
     
     challenge = r.get(data.id)
     if challenge:
@@ -168,9 +173,9 @@ async def chat_message(sid, data):
         hand_sign_action = face.liveness.HandSign(**expected_sign)
         r.delete(data.id)
     else:
-        logger.error(f"Invalid sign id - Sign id does not exit in redis")
-        raise HTTPException(status_code=400, detail='Invalid sign id.')
-
+        logger.error(f"Invalid sign id - Sign id does not exit in redis. SID: {sid}")
+        await sio.emit('result', SocketErrorResult(error='Invalid sign id.'))
+        return
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
     
     logger.error(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
@@ -191,5 +196,5 @@ def disconnect(sid):
 
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))
-    host: str = os.environ.get('HOST', "localhost")
+    host: str = os.environ.get('HOST', 'localhost')
     uvicorn.run(socketio_app, host=host, port=port)

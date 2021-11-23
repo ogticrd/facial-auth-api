@@ -31,3 +31,6 @@ class FaceAuthModel(BaseModel):
     )
     source: str = Field(...,  title="Source to verify")
     id: Union[str, uuid.UUID]
+
+class SocketErrorResult(BaseModel):
+    error: str

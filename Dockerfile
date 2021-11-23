@@ -26,4 +26,4 @@ EXPOSE $PORT
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
 # Timeout is set to 0 to disable the timeouts of the workers to allow Cloud Run to handle instance scaling.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --pythonpath ./src/ api:app --worker-class uvicorn.workers.UvicornWorker
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --pythonpath ./src/ api:socketio_app --worker-class uvicorn.workers.UvicornWorker

@@ -12,6 +12,8 @@ from fastapi import HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
+from pydantic import ValidationError
+import socketio
 from loguru import logger
 import requests
 import redis
@@ -25,6 +27,7 @@ from dependencies import get_hand_action
 from types_utils import ChallengeResponse
 from types_utils import VerifyResponse
 from types_utils import FaceAuthModel
+from types_utils import SocketErrorResult
 
 import face
 
@@ -35,12 +38,12 @@ logger.add(os.path.join(log_dir, 'file_{time}.log'))
 r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6379)))
 
 app = FastAPI(
-    title='Facial Authentication API',
-    description='An API to verify users using their faces and document ID (Cédula) photo.',
-    version='0.1', 
     docs_url='/docs', 
     redoc_url='/redoc'
 )
+
+sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='asgi')
+socketio_app = socketio.ASGIApp(sio, app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -70,6 +73,7 @@ def root():
     </head>
     <body>
         <h1>Face Recognition OGTIC Example</h1>
+        <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
         <script src="/static/sketch.js"></script>
     </body>
     </html>
@@ -121,7 +125,76 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
         is_alive=results_live.is_alive
     )
 
+# Socket.io events
+
+@sio.event
+def connect(sid, environ):
+    print("connect ", sid)
+
+@sio.on('verify')
+async def chat_message(sid, data):
+    logger.debug(f'Executing verify... SID: {sid}')
+    try:
+        data = FaceAuthModel(**data)
+        logger.debug(f'Executing verify with data verified! SID: {sid}')
+        logger.debug(dict(data))
+    except ValidationError:
+        logger.error(f"Input data is not valid. SID: {sid}")
+        await sio.emit('result', dict(SocketErrorResult(error='Input data is not valid')))
+        return
+    
+    video_path = base64_to_webm(data.source.split(',')[1])
+    
+    logger.debug(f"Video temporarily saved at {video_path}. SID: {sid}")
+    
+    try:
+        target_path = get_target_image(data.cedula)
+    except requests.HTTPError:
+        logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image. SID: {sid}")
+        await sio.emit('result', dict(SocketErrorResult(error='Error trying to get cedula')))
+        return
+    
+    frames = load_short_video(video_path)
+    source_path = save_source_image(frames)
+    
+    logger.debug(f"Source image temporarily saved at {source_path}. SID: {sid}")
+    
+    try:
+        results_recog = face.verify(target_path, source_path)
+    except IndexError:
+        logger.error(f"Not face detected - Somthing had occur at src.face.verify SID: {sid}")
+        await sio.emit('result', dict(SocketErrorResult(error='Not face detected')))
+        return 
+    
+    challenge = r.get(data.id)
+    if challenge:
+        logger.debug(f"Retrive Challenge from cache. SID: {sid}")
+        expected_sign = json.loads(challenge)
+        hand_sign_action = face.liveness.HandSign(**expected_sign)
+        r.delete(data.id)
+    else:
+        logger.error(f"Invalid sign id - Sign id does not exit in redis. SID: {sid}")
+        await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id.')))
+        return
+    results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
+    
+    logger.error(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
+
+    result = VerifyResponse(
+        verified=True if results_recog.isIdentical and results_live.is_alive else False,
+        face_verified=results_recog.isIdentical,
+        is_alive=results_live.is_alive
+    )
+    
+    await sio.emit('result', dict(result), to=sid)
+    logger.debug(f'Sent to result! SID: {sid}')
+    logger.debug(dict(result))
+
+@sio.event
+def disconnect(sid):
+    print('disconnect ', sid)
+
 if __name__ == "__main__":
     port: int = int(os.environ.get('PORT', 8080))
-    host: str = os.environ.get('HOST', "localhost")
-    uvicorn.run(app, host=host, port=port)
+    host: str = os.environ.get('HOST', 'localhost')
+    uvicorn.run(socketio_app, host=host, port=port)

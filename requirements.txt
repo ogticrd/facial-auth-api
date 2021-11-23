@@ -14,3 +14,4 @@ redis==3.5.3
 deepdiff==5.6.0
 typing-extensions==3.10.0.2
 loguru==0.5.3
+python-socketio==5.5.0

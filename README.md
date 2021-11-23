@@ -56,10 +56,10 @@ uvicorn src.api:app
 
 ## Socket.io Docs
 
-| Event   | Description            | Emitter  | Input Schema                                  | Input data type  | Output schema  | Output data type  |
-| --------| -----------------------|----------|-----------------------------------------------|------------------|----------------|-------------------|
-| verify  | Event to verify users  | False    | {cedula: String, source: String, id: String}  | json             | Not output     | N/A               |
-| result  | Result of verification | True     | Not inputs                                    | N/A              | {verified: Bool, face_verified: Bool, is_alive: Bool}              | json              |
+| Event   | Description            | Emitter  | Input schema | Input data type  | Output schema  | Output data type  | Error schema     |
+| --------| -----------------------|----------|--------------|------------------|----------------|-------------------|------------------|
+| verify  | Event to verify users  | False    | {cedula: String, source: String, id: String} | json             | Not output     | N/A               | N/A              |
+| result  | Result of verification | True     | Not input    | N/A              | {verified: Bool, face_verified: Bool, is_alive: Bool} | json              | {error: String}  |
 
 ## Authors
 

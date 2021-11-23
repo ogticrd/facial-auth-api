@@ -140,7 +140,7 @@ async def chat_message(sid, data):
         logger.debug(dict(data))
     except ValidationError:
         logger.error(f"Input data is not valid. SID: {sid}")
-        await sio.emit('result', SocketErrorResult(error='Input data is not valid'))
+        await sio.emit('result', dict(SocketErrorResult(error='Input data is not valid')))
         return
     
     video_path = base64_to_webm(data.source.split(',')[1])
@@ -151,7 +151,7 @@ async def chat_message(sid, data):
         target_path = get_target_image(data.cedula)
     except requests.HTTPError:
         logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image. SID: {sid}")
-        await sio.emit('result', SocketErrorResult(error='Error trying to get cedula'))
+        await sio.emit('result', dict(SocketErrorResult(error='Error trying to get cedula')))
         return
     
     frames = load_short_video(video_path)
@@ -163,7 +163,7 @@ async def chat_message(sid, data):
         results_recog = face.verify(target_path, source_path)
     except IndexError:
         logger.error(f"Not face detected - Somthing had occur at src.face.verify SID: {sid}")
-        await sio.emit('result', SocketErrorResult(error='Not face detected'))
+        await sio.emit('result', dict(SocketErrorResult(error='Not face detected')))
         return 
     
     challenge = r.get(data.id)
@@ -174,7 +174,7 @@ async def chat_message(sid, data):
         r.delete(data.id)
     else:
         logger.error(f"Invalid sign id - Sign id does not exit in redis. SID: {sid}")
-        await sio.emit('result', SocketErrorResult(error='Invalid sign id.'))
+        await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id.')))
         return
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
     

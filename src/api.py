@@ -182,7 +182,7 @@ async def chat_message(sid, data):
         
         if challenge_cache.sid != sid:
             logger.error(f"Invalid sign id - Challenge cache SID ({challenge_cache.sid}) do not match with SID ({sid}). SID: {sid}")
-            await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id.')))
+            await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id. in sid')))
             r.delete(data.id) 
             return
         

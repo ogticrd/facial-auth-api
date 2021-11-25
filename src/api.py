@@ -186,9 +186,9 @@ async def chat_message(sid, data):
             r.delete(data.id) 
             return
         
-        if challenge_cache.trial < 30:
+        if challenge_cache.trial >= 20:
             logger.error(f"Number of trial exceeded. SID: {sid}")
-            await sio.emit('result', dict(SocketErrorResult(error='Number of trial exceeded..')))
+            await sio.emit('result', dict(SocketErrorResult(error='Number of trial exceeded.')))
             r.delete(data.id)
             return
         else:

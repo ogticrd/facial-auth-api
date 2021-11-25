@@ -85,7 +85,7 @@ def challenge():
     id = uuid.uuid4()
     sign = get_hand_action()
     challenge_cache = ChallengeCache(sign=sign, sid=None, trial=0)
-    r.set(str(id), json.dumps(dict(challenge_cache)))
+    r.set(str(id), json.dumps(challenge_cache.dict()))
     return ChallengeResponse(id=id, sign=sign)
 
 @app.post('/verify', response_model=VerifyResponse)
@@ -193,7 +193,7 @@ async def chat_message(sid, data):
             return
         else:
             challenge_cache.trial += 1
-            r.set(str(data.id), json.dumps(dict(challenge_cache)))
+            r.set(str(data.id), json.dumps(challenge_cache.dict()))
     else:
         logger.error(f"Invalid sign id - Sign id does not exit in redis. SID: {sid}")
         await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id.')))

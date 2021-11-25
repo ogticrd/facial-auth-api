@@ -1,6 +1,7 @@
 import sys
 import uuid
 from typing import Union
+from typing import Optional
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict
@@ -15,6 +16,11 @@ from face.liveness import HandSign
 class ChallengeResponse(BaseModel):
     id: Union[str, uuid.UUID]
     sign: HandSign
+
+class ChallengeCache(BaseModel):
+    sign: HandSign
+    sid: Optional[str]
+    trial: int
 
 class VerifyResponse(BaseModel):
     verified: bool

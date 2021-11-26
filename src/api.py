@@ -25,6 +25,7 @@ from dependencies import save_source_image
 from dependencies import get_hand_action
 
 from types_utils import ChallengeResponse
+from types_utils import ChallengeCache
 from types_utils import VerifyResponse
 from types_utils import FaceAuthModel
 from types_utils import SocketErrorResult
@@ -83,7 +84,8 @@ def root():
 def challenge():
     id = uuid.uuid4()
     sign = get_hand_action()
-    r.set(str(id), json.dumps(dict(sign)))
+    challenge_cache = ChallengeCache(sign=sign, sid=None, trial=0)
+    r.set(str(id), json.dumps(challenge_cache.dict()))
     return ChallengeResponse(id=id, sign=sign)
 
 @app.post('/verify', response_model=VerifyResponse)
@@ -141,6 +143,7 @@ async def chat_message(sid, data):
     except ValidationError:
         logger.error(f"Input data is not valid. SID: {sid}")
         await sio.emit('result', dict(SocketErrorResult(error='Input data is not valid')))
+        r.delete(data.id)
         return
     
     video_path = base64_to_webm(data.source.split(',')[1])
@@ -152,6 +155,7 @@ async def chat_message(sid, data):
     except requests.HTTPError:
         logger.error(f"Error trying to get cedula photo - Something had occur at src.dependencies.get_target_image. SID: {sid}")
         await sio.emit('result', dict(SocketErrorResult(error='Error trying to get cedula')))
+        r.delete(data.id)
         return
     
     frames = load_short_video(video_path)
@@ -164,21 +168,41 @@ async def chat_message(sid, data):
     except IndexError:
         logger.error(f"Not face detected - Somthing had occur at src.face.verify SID: {sid}")
         await sio.emit('result', dict(SocketErrorResult(error='Not face detected')))
+        r.delete(data.id)
         return 
     
-    challenge = r.get(data.id)
-    if challenge:
-        logger.debug(f"Retrive Challenge from cache. SID: {sid}")
-        expected_sign = json.loads(challenge)
-        hand_sign_action = face.liveness.HandSign(**expected_sign)
-        r.delete(data.id)
+    challenge_cache_data = r.get(data.id)
+    if challenge_cache_data:
+        logger.debug(f"Retrive challenge cache. SID: {sid}")
+        challenge_cache = ChallengeCache(**json.loads(challenge_cache_data))
+        hand_sign_action = challenge_cache.sign
+        if not challenge_cache.sid:
+            logger.debug(f"Add sid to challenge cache. SID: {sid}")
+            challenge_cache.sid = sid
+        
+        if challenge_cache.sid != sid:
+            logger.error(f"Invalid sign id - Challenge cache SID ({challenge_cache.sid}) do not match with SID ({sid}). SID: {sid}")
+            await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id. in sid')))
+            r.delete(data.id) 
+            return
+        
+        if challenge_cache.trial >= 20:
+            logger.error(f"Number of trial exceeded. SID: {sid}")
+            await sio.emit('result', dict(SocketErrorResult(error='Number of trial exceeded.')))
+            r.delete(data.id)
+            return
+        else:
+            challenge_cache.trial += 1
+            r.set(str(data.id), json.dumps(challenge_cache.dict()))
     else:
         logger.error(f"Invalid sign id - Sign id does not exit in redis. SID: {sid}")
         await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id.')))
+        r.delete(data.id)
         return
+    
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
     
-    logger.error(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
+    logger.info(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
 
     result = VerifyResponse(
         verified=True if results_recog.isIdentical and results_live.is_alive else False,
@@ -188,7 +212,6 @@ async def chat_message(sid, data):
     
     await sio.emit('result', dict(result), to=sid)
     logger.debug(f'Sent to result! SID: {sid}')
-    logger.debug(dict(result))
 
 @sio.event
 def disconnect(sid):

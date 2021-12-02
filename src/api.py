@@ -109,10 +109,10 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
         logger.error(f"Not face detected - Somthing had occur at src.face.verify")
         raise HTTPException(status_code=400, detail='Not face detected.')
     
-    challenge = r.get(data.id)
-    if challenge:
-        expected_sign = json.loads(challenge)
-        hand_sign_action = face.liveness.HandSign(**expected_sign)
+    challenge_cache_data = r.get(data.id)
+    if challenge_cache_data:
+        challenge_cache = ChallengeCache(**json.loads(challenge_cache_data))
+        hand_sign_action = challenge_cache.sign
         r.delete(data.id)
     else:
         logger.error(f"Invalid sign id - Sign id does not exit in redis")

@@ -118,6 +118,7 @@ def verify(data: FaceAuthModel = Body(..., embed=True)):
         logger.error(f"Invalid sign id - Sign id does not exit in redis")
         raise HTTPException(status_code=400, detail='Invalid sign id.')
     
+    logger.debug(f"'til here!!")
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
     
     logger.error(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")

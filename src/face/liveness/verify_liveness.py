@@ -47,16 +47,7 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
         except ValueError:
             pass
         
-        mesh_coords, check = landmarks_detection(frame)
-        
-        if check:
-            ratio = blink_detection(mesh_coords, RIGHT_EYE, LEFT_EYE)
-        if ratio > 5.3:
-            closed_eyes_frames_counter += 1
-        elif closed_eyes_frames_counter > closed_eyes_frames:
-            total_blink += 1
-            closed_eyes_frames_counter = 0
-
+    total_blink = 0
     lbp_average = sum(lbp_per_frames)/len(lbp_per_frames)
     if (total_blink >= 0 and total_blink < 4) and (hand_sign_result.frames > 0 and hand_sign_result.one_hand) and (lbp_average > 0.05):
         is_alive = True

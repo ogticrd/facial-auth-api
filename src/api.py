@@ -163,14 +163,6 @@ async def chat_message(sid, data):
     
     logger.debug(f"Source image temporarily saved at {source_path}. SID: {sid}")
     
-    try:
-        results_recog = face.verify(target_path, source_path)
-    except IndexError:
-        logger.error(f"Not face detected - Somthing had occur at src.face.verify SID: {sid}")
-        await sio.emit('result', dict(SocketErrorResult(error='Not face detected')))
-        r.delete(data.id)
-        return 
-    
     challenge_cache_data = r.get(data.id)
     if challenge_cache_data:
         logger.debug(f"Retrive challenge cache. SID: {sid}")
@@ -201,6 +193,16 @@ async def chat_message(sid, data):
         return
     
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
+    if results_live.is_alive:
+        try:
+            results_recog = face.verify(target_path, source_path)
+        except IndexError:
+            logger.error(f"Not face detected - Somthing had occur at src.face.verify SID: {sid}")
+            await sio.emit('result', dict(SocketErrorResult(error='Not face detected')))
+            r.delete(data.id)
+            return
+    else:
+        results_recog = face.verify.VerifyResult(isIdentical=False, confidence=0.0)
     
     logger.info(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
 

@@ -134,12 +134,11 @@ def connect(sid, environ):
     print("connect ", sid)
 
 @sio.on('verify')
-async def chat_message(sid, data):
+async def verify_io(sid, data):
     logger.debug(f'Executing verify... SID: {sid}')
     try:
         data = FaceAuthModel(**data)
         logger.debug(f'Executing verify with data verified! SID: {sid}')
-        logger.debug(dict(data))
     except ValidationError:
         logger.error(f"Input data is not valid. SID: {sid}")
         await sio.emit('result', dict(SocketErrorResult(error='Input data is not valid')))

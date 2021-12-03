@@ -190,8 +190,8 @@ async def verify_io(sid, data):
         await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id.')))
         r.delete(data.id)
         return
-    logger.debug(f"Verifying liveness...")
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
+    logger.debug(f"Liveness Verified! SID: {sid}")
     if results_live.is_alive:
         try:
             results_recog = face.verify(target_path, source_path)

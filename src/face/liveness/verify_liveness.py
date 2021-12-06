@@ -17,6 +17,8 @@ from .types_utils import HandEnum
 from .types_utils import LivenessResult
 from .types_utils import HandSignResultValues
 
+from src import logguer
+
 desc = LocalBinaryPatterns(24, 8)
 
 def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed_eyes_frames: int = 1, min_num_frames_alive: int = 15) -> LivenessResult:
@@ -45,7 +47,9 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
             lbp_per_frames.append(lbp_value)
         except ValueError:
             pass
-        
+    
+    logger.debug(f"frames alive: {hand_sign_result.frames} - hand: {hand_sign_result.hand}")
+
     total_blink = 0
     lbp_average = sum(lbp_per_frames)/len(lbp_per_frames)
     if (total_blink >= 0 and total_blink < 4) and (hand_sign_result.frames > min_num_frames_alive and hand_sign_result.one_hand) and (lbp_average > 0.05):

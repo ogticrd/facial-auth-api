@@ -19,7 +19,7 @@ from .types_utils import HandSignResultValues
 
 desc = LocalBinaryPatterns(24, 8)
 
-def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed_eyes_frames: int = 1) -> LivenessResult:
+def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed_eyes_frames: int = 1, min_num_frames_alive: int = 15) -> LivenessResult:
     is_alive = False
     closed_eyes_frames_counter: int = 0
     total_blink: int = 0
@@ -31,8 +31,7 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
         if not color_face.size and not gray_face.size:
             return LivenessResult(is_alive=False, alive_ratio=0.0, total_blink=total_blink, blur_average=0.0, lbp_average=0.0)
         
-        hand_output = hand_sign_detection(frame, hand_sign=hand_sign_action)
-        
+        hand_output = hand_sign_detection(frame, hand_sign=hand_sign_action)      
         
         if hand_output.result:
             if hand_sign_result.frames == 0:
@@ -49,7 +48,7 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
         
     total_blink = 0
     lbp_average = sum(lbp_per_frames)/len(lbp_per_frames)
-    if (total_blink >= 0 and total_blink < 4) and (hand_sign_result.frames > 0 and hand_sign_result.one_hand) and (lbp_average > 0.05):
+    if (total_blink >= 0 and total_blink < 4) and (hand_sign_result.frames > min_num_frames_alive and hand_sign_result.one_hand) and (lbp_average > 0.05):
         is_alive = True
     
     return LivenessResult(is_alive=is_alive, alive_ratio=0.0, total_blink=total_blink, blur_average=0.0, lbp_average=lbp_average)

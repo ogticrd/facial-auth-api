@@ -17,7 +17,7 @@ from .types_utils import HandEnum
 from .types_utils import LivenessResult
 from .types_utils import HandSignResultValues
 
-from src import logguer
+from src import logger
 
 desc = LocalBinaryPatterns(24, 8)
 

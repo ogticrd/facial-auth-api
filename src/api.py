@@ -190,9 +190,10 @@ async def verify_io(sid, data):
         await sio.emit('result', dict(SocketErrorResult(error='Invalid sign id.')))
         r.delete(data.id)
         return
-    
     results_live = face.liveness.verify_liveness(frames, hand_sign_action=hand_sign_action)
+    logger.debug(f"Liveness Verified! SID: {sid}")
     if results_live.is_alive:
+        logger.debug(f"verify if it is alive! SID: {sid}")
         try:
             results_recog = face.verify(target_path, source_path)
         except IndexError:
@@ -201,7 +202,8 @@ async def verify_io(sid, data):
             r.delete(data.id)
             return
     else:
-        results_recog = face.verify.VerifyResult(isIdentical=False, confidence=0.0)
+        logger.debug(f"verify if it is not alive! SID: {sid}")
+        results_recog = face.VerifyResult(isIdentical=False, confidence=0.0)
     
     logger.info(f"User: {data.cedula} - verified: {True if results_recog.isIdentical and results_live.is_alive else False} - face_verified: {results_recog.isIdentical} - Is alive: {results_live.is_alive}")
 

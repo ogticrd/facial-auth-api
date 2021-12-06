@@ -14,7 +14,6 @@ from fastapi.responses import HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
 import socketio
-from loguru import logger
 import requests
 import redis
 
@@ -30,11 +29,9 @@ from types_utils import VerifyResponse
 from types_utils import FaceAuthModel
 from types_utils import SocketErrorResult
 
-import face
+from src import logger
 
-# logs
-log_dir = os.environ.get('LOG_DIR', './logs/')
-logger.add(os.path.join(log_dir, 'file_{time}.log'))
+import face
 
 r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6379)))
 

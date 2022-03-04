@@ -52,7 +52,7 @@ def verify_liveness(frames: List[np.ndarray], hand_sign_action: HandSign, closed
 
     total_blink = 0
     lbp_average = sum(lbp_per_frames)/len(lbp_per_frames)
-    if (total_blink >= 0 and total_blink < 4) and (hand_sign_result.frames > min_num_frames_alive and hand_sign_result.one_hand) and (lbp_average > 0.05):
+    if (total_blink >= 0 and total_blink < 4) and (hand_sign_result.frames > min_num_frames_alive and hand_sign_result.one_hand):
         is_alive = True
     
     return LivenessResult(is_alive=is_alive, alive_ratio=0.0, total_blink=total_blink, blur_average=0.0, lbp_average=lbp_average)

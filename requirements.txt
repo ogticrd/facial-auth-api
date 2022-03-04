@@ -1,5 +1,5 @@
 mediapipe==0.8.7.3
-opencv-python==4.5.3.56
+opencv-python==4.5.5.62
 numpy==1.21.2
 requests==2.26.0
 azure-cognitiveservices-vision-face==0.5.0

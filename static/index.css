@@ -1,47 +1,45 @@
-*{
-    padding: 0;
-    margin: 0;
-    position: absolute;
-    left: 0; 
-    right: 0; 
-    margin-left: auto; 
-    margin-right: auto;
-    text-align: center;
-    color: #333333;
-    font-family: sans-serif;
-}
 body {
-    padding: 16px;
-    position: relative;
+  font: 14px "Open Sans", "Arial", sans-serif;
 }
 
-canvas {
-    border-radius: 100%;
-    width: 320px !important;
-    height: 320px !important;
-    top: 424%;
-    border: 8px #f1f1f1;
-    box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+video {
+  margin-top: 2px;
+  border: 1px solid black;
 }
 
-button {
-    padding: 4px 8px 4px 8px;
-    font-size: 24px;
-    top: 2050%;
-    border-radius: 8px;
+.button {
+  cursor: pointer;
+  display: block;
+  width: 160px;
+  border: 1px solid black;
+  font-size: 16px;
+  text-align: center;
+  padding-top: 2px;
+  padding-bottom: 4px;
+  color: white;
+  background-color: darkgreen;
+  text-decoration: none;
 }
 
-input {
-    top: 1825%;
-    width: 200px;
-    height: 30px;
-    border-radius: 8px;
-    font-size: 24px;
+h2 {
+  margin-bottom: 4px;
 }
 
-p {
-    top: 1600%;
-    font-size: 20px;
-    color: #333333;
-    padding: 4px;
+.left {
+  margin-right: 10px;
+  float: left;
+  width: 160px;
+  padding: 0px;
+}
+
+.right {
+  margin-left: 500px;
+  float: left;
+  width: 160px;
+  padding: 0px;
+}
+
+.bottom {
+  clear: both;
+  padding-top: 10px;
 }

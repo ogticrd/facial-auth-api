@@ -63,16 +63,32 @@ def root():
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="static/index.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
-        <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js" type="text/javascript"></script>
-        <title>Facial Authentication API</title>
+        <link rel="stylesheet" href="/static/index.css" />
+        <title>Facial Recognition API</title>
     </head>
     <body>
-        <h1>Face Recognition OGTIC Example</h1>
+        <div class="left">
+            <div id="startButton" class="button">
+                Start
+            </div>
+            <h2>Preview</h2>
+            <video id="preview" width="640" height="480" autoplay muted></video>
+        </div>
+        <div class="right">
+            <div id="stopButton" class="button">
+                Stop
+            </div>
+            <h2>Recording</h2>
+            <video id="recording" width="640" height="480" controls></video>
+            <a id="downloadButton" class="button">
+                Download
+            </a>
+        </div>
+        <div class="bottom">
+            <pre id="log"></pre>
+        </div>
         <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
-        <script src="/static/sketch.js"></script>
+        <script src="/static/index.js"></script>
     </body>
     </html>
     """

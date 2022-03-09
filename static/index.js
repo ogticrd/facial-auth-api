@@ -64,6 +64,7 @@ async function startAuth() {
   if (recursion_count % 10 === 0){
     const res = await fetch('/challenge', options)
     challenge = await res.json()
+    console.log(challenge.sign)
   }
 
   navigator.mediaDevices.getUserMedia(options)

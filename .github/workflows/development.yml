@@ -108,7 +108,7 @@ jobs:
         uses: rlespinasse/github-slug-action@v3.x
 
       - id: deploy
-        uses: google-github-actions/deploy-cloudrun@main
+        uses: google-github-actions/deploy-cloudrun@v0.9.0
         with:
           image: ${{ env.GAR_BASE}}/${{env.PROJECT_NAME}}/${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}:${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
           service: ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG }}-${{ env.GITHUB_HEAD_REF_SLUG || env.GITHUB_REF_SLUG }}
@@ -117,10 +117,7 @@ jobs:
           flags: |
             --vpc-connector=projects/${{ secrets.GCP_PROJECT }}/locations/${{ secrets.GCP_REGION }}/connectors/${{ secrets.GCP_REGION }}
           env_vars: |
-            CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }},
-            FACE_API_KEY=${{ secrets.FACE_API_KEY }},
-            FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }},
-            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }},FACE_API_KEY=${{ secrets.FACE_API_KEY }},FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }},REDIS_HOST=${{ secrets.REDIS_HOST }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master

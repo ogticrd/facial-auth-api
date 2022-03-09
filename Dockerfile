@@ -17,7 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy local code to the container image.
 COPY . ./
 
-ENV HOST 0.0.0.0
 ENV PORT 80
 EXPOSE $PORT
 

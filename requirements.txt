@@ -1,8 +1,8 @@
-mediapipe==0.8.7.3
+mediapipe==0.8.9.1
 opencv-python==4.5.5.62
 numpy==1.21.2
 requests==2.26.0
-azure-cognitiveservices-vision-face==0.5.0
+azure-cognitiveservices-vision-face==0.6.0
 scikit-image==0.18.3
 fastapi==0.68.1
 gunicorn==20.1.0
@@ -15,3 +15,4 @@ deepdiff==5.6.0
 typing-extensions==3.10.0.2
 loguru==0.5.3
 python-socketio==5.5.0
+protobuf==3.20.*

@@ -45,7 +45,7 @@ To install it manually (python 3.6+ and pip should be installed):
 
 ```shell
 # Deploy redis for json support
- docker run -p 6379:6379 --name redis-redisjson redislabs/rejson:latest
+ docker run -p 6379:6379 -d --name redis-stack redis/redis-stack:latest
 
 #
 git clone git@github.com:opticrd/facial-auth-api.git

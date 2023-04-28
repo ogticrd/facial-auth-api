@@ -16,3 +16,4 @@ typing-extensions==3.10.0.2
 loguru==0.5.3
 python-socketio==5.5.0
 protobuf==3.20.*
+boto3==1.26.122

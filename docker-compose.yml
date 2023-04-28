@@ -13,4 +13,4 @@ services:
     links:
       - redis
   redis:
-    image: redis
+    image: redis/redis-stack

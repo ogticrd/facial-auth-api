@@ -118,7 +118,7 @@ jobs:
             CEDULA_API_KEY=${{ secrets.CEDULA_API_KEY }},FACE_API_KEY=${{ secrets.FACE_API_KEY }},FACE_API_ENDPOINT=${{ secrets.FACE_API_ENDPOINT }},REDIS_HOST=${{ secrets.REDIS_HOST }}
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v1.1.0
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           service_account_key: ${{ secrets.GAR_JSON_KEY }}

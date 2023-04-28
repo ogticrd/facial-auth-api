@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
@@ -10,7 +10,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 
 # Install production dependencies.
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 -y
+RUN apt-get update && apt-get install gcc ffmpeg libsm6 libxext6 -y
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 

@@ -1,35 +1,38 @@
-import os
-import sys
-from typing import Dict
-import requests
+import boto3
 from pydantic import BaseModel
 
-from azure.cognitiveservices.vision.face import FaceClient
-from msrest.authentication import CognitiveServicesCredentials
 
 class VerifyResult(BaseModel):
     isIdentical: bool
     confidence: float
 
+
 def verify(target_path: str, source_path: str) -> VerifyResult:
-    face_client = FaceClient(os.environ.get('FACE_API_ENDPOINT'), CognitiveServicesCredentials(os.environ.get('FACE_API_KEY', '')))
 
-    test_image_array = [target_path, source_path]
-    face_ids = []
-    for image in test_image_array:
-        image_io = open(image, 'r+b')
-        face_ids.append(face_client.face.detect_with_stream(image_io, detection_model='detection_03')[0].face_id)
+    session = boto3.Session()
+    client = session.client('rekognition')
 
-    headers: Dict[str, str] = {
-        'Ocp-Apim-Subscription-Key': os.environ.get('FACE_API_KEY', ''),
-        'Content-Type': 'application/json'
-    }
+    image_source = open(source_path, 'rb')
+    image_target = open(target_path, 'rb')
 
-    data: Dict[str, str] = {
-        "faceId1": face_ids[0],
-        "faceId2": face_ids[1]
-    }
+    response = client.compare_faces(SimilarityThreshold=80,
+                                    SourceImage={'Bytes': image_source.read()},
+                                    TargetImage={'Bytes': image_target.read()})
+    print(response)
+    similarity = 0
+    for faceMatch in response['FaceMatches']:
+        position = faceMatch['Face']['BoundingBox']
+        similarity = faceMatch['Similarity']
+        print('The face at ' +
+              str(position['Left']) + ' ' +
+              str(position['Top']) +
+              ' matches with ' + str(similarity) + '% confidence')
+        if similarity > 90:
+            faces_match = True
+            break
+    else:
+        faces_match = False
 
-    results = requests.post(f'{os.environ.get("FACE_API_ENDPOINT")}/face/v1.0/verify', headers=headers, json=data)
-    json_results = results.json()
-    return VerifyResult(isIdentical=json_results['isIdentical'], confidence=json_results['confidence'])
+    image_source.close()
+    image_target.close()
+    return VerifyResult(isIdentical=faces_match, confidence=similarity)

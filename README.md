@@ -29,8 +29,9 @@ LOG_DIR='/var/logs/facial-auth-api/'
 
 # Require
 CEDULA_API_KEY=...
-FACE_API_KEY=...
-FACE_API_ENDPOINT=...
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=...
 ```
 
 To install it using docker with docker-compose:
@@ -38,7 +39,7 @@ To install it using docker with docker-compose:
 ```shell
 git clone git@github.com:opticrd/facial-auth-api.git
 cd facial-auth-api
-docker-compose up
+docker-compose up --build
 ```
 
 To install it manually (python 3.6+ and pip should be installed):
